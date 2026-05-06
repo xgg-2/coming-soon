@@ -1,433 +1,435 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>xgg.2 — profile</title>
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>xgg.2</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            background-color: #008080;
-            background-image:
-                repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0,0,0,0.04) 1px, rgba(0,0,0,0.04) 2px),
-                repeating-linear-gradient(90deg, transparent, transparent 1px, rgba(0,0,0,0.04) 1px, rgba(0,0,0,0.04) 2px);
-            background-size: 4px 4px;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            font-family: "Courier New", Courier, monospace;
-        }
+:root {
+  --bg:     #c0c0c0;
+  --dark:   #000000;
+  --light:  #ffffff;
+  --mid:    #7b7b7b;
+  --sunken: #d4d0c8;
+  --blue:   #000080;
+  --desk:   #008080;
+}
 
-        /* ── WINDOW ── */
-        .window {
-            width: 460px;
-            background: #c0c0c0;
-            border-top: 2px solid #fff;
-            border-left: 2px solid #fff;
-            border-right: 2px solid #000;
-            border-bottom: 2px solid #000;
-            box-shadow: 4px 4px 0 rgba(0,0,0,0.35);
-        }
+body {
+  min-height: 100vh;
+  background-color: var(--desk);
+  background-image: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Courier New", Courier, monospace;
+  padding: 20px;
+}
 
-        .title-bar {
-            background: linear-gradient(90deg, #000080, #1084d0);
-            color: #fff;
-            padding: 3px 4px 3px 6px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 12px;
-            font-weight: bold;
-            user-select: none;
-            letter-spacing: 0.5px;
-        }
+/* Window */
+.window {
+  width: 400px;
+  background: var(--bg);
+  border-top:    2px solid var(--light);
+  border-left:   2px solid var(--light);
+  border-right:  2px solid var(--dark);
+  border-bottom: 2px solid var(--dark);
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+}
 
-        .title-bar-left { display: flex; align-items: center; gap: 6px; }
-        .title-icon { font-size: 13px; }
+/* Title bar */
+.titlebar {
+  height: 24px;
+  background: linear-gradient(90deg, #000080, #1464b4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 3px 0 6px;
+  user-select: none;
+}
+.tb-title {
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.tb-btns { display: flex; gap: 2px; }
+.tb-btn {
+  width: 17px; height: 15px;
+  background: var(--bg);
+  border-top:    1px solid var(--light);
+  border-left:   1px solid var(--light);
+  border-right:  1px solid var(--dark);
+  border-bottom: 1px solid var(--dark);
+  font-size: 9px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  color: var(--dark);
+}
 
-        .tb-buttons { display: flex; gap: 2px; }
-        .tb-btn {
-            width: 16px; height: 14px;
-            background: #c0c0c0;
-            border-top: 1px solid #fff;
-            border-left: 1px solid #fff;
-            border-right: 1px solid #000;
-            border-bottom: 1px solid #000;
-            font-size: 9px;
-            color: #000;
-            display: flex; align-items: center; justify-content: center;
-            cursor: default;
-            font-family: sans-serif;
-        }
+/* Body */
+.body {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 
-        /* ── BODY ── */
-        .win-body { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+/* Nameplate */
+.nameplate {
+  background: #f5eaf2;
+  border-top:    1px solid #c090b0;
+  border-left:   1px solid #c090b0;
+  border-right:  1px solid #8a5070;
+  border-bottom: 1px solid #8a5070;
+  padding: 4px 8px;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: #6a1845;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-        /* ── NAMEPLATE ── */
-        .nameplate {
-            text-align: center;
-            padding: 5px 10px;
-            background: #f0e8f4;
-            border-top: 1px solid #d4a0cc;
-            border-left: 1px solid #d4a0cc;
-            border-right: 1px solid #a06080;
-            border-bottom: 1px solid #a06080;
-            color: #7a2060;
-            font-size: 12px;
-            letter-spacing: 3px;
-            position: relative;
-            overflow: hidden;
-        }
-        .nameplate::before, .nameplate::after {
-            content: "🌸";
-            position: absolute;
-            top: 50%; transform: translateY(-50%);
-            opacity: 0.6;
-        }
-        .nameplate::before { left: 8px; }
-        .nameplate::after { right: 8px; }
+/* Profile panel */
+.profile-panel {
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border-top:    1px solid var(--mid);
+  border-left:   1px solid var(--mid);
+  border-right:  1px solid var(--light);
+  border-bottom: 1px solid var(--light);
+}
 
-        /* ── PROFILE CARD ── */
-        .card {
-            border-top: 1px solid #fff;
-            border-left: 1px solid #fff;
-            border-right: 1px solid #7b7b7b;
-            border-bottom: 1px solid #7b7b7b;
-            background: #c8c8c8;
-            padding: 10px;
-            display: flex;
-            gap: 12px;
-            align-items: flex-start;
-        }
+.avatar-wrap { position: relative; flex-shrink: 0; }
+.avatar {
+  display: block;
+  width: 72px;
+  height: 72px;
+  border-top:    2px solid var(--mid);
+  border-left:   2px solid var(--mid);
+  border-right:  2px solid var(--light);
+  border-bottom: 2px solid var(--light);
+  background: #888;
+  object-fit: cover;
+}
+.pip {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  background: var(--mid);
+}
+.pip.online  { background: #00b050; }
+.pip.idle    { background: #e8a000; }
+.pip.dnd     { background: #cc2020; }
+.pip.offline { background: #747f8d; }
 
-        .avatar-col { flex-shrink: 0; position: relative; }
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.d-name {
+  font-size: 15px;
+  font-weight: bold;
+  color: var(--blue);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.u-name { font-size: 10px; color: #555; margin-top: -3px; }
 
-        .avatar {
-            width: 76px;
-            height: 76px;
-            display: block;
-            border-top: 2px solid #000;
-            border-left: 2px solid #000;
-            border-right: 2px solid #fff;
-            border-bottom: 2px solid #fff;
-            background: #888;
-            image-rendering: auto;
-        }
+.status-box {
+  background: var(--sunken);
+  border-top:    1px solid var(--mid);
+  border-left:   1px solid var(--mid);
+  border-right:  1px solid var(--light);
+  border-bottom: 1px solid var(--light);
+  padding: 3px 6px;
+  font-size: 11px;
+  color: #111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-        .status-ring {
-            position: absolute;
-            bottom: -1px; right: -1px;
-            width: 16px; height: 16px;
-            border-radius: 50%;
-            border: 2px solid #c8c8c8;
-            background: #777;
-            transition: background 0.3s;
-        }
-        .s-online  { background: #00c853; }
-        .s-idle    { background: #ffa000; }
-        .s-dnd     { background: #dd2222; }
-        .s-offline { background: #747f8d; }
+.clan-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  padding: 2px 8px 2px 4px;
+  border-top:    1px solid #4444aa;
+  border-left:   1px solid #4444aa;
+  border-right:  1px solid #00002a;
+  border-bottom: 1px solid #00002a;
+}
+.clan-icon {
+  width: 13px;
+  height: 13px;
+}
 
-        .info-col { flex: 1; min-width: 0; }
+/* Group label */
+.group-label {
+  font-size: 10px;
+  color: #444;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
 
-        .dname {
-            font-size: 16px;
-            font-weight: bold;
-            color: #000080;
-            letter-spacing: 1px;
-            line-height: 1.2;
-        }
+/* Group box */
+.group {
+  background: var(--sunken);
+  border-top:    1px solid var(--mid);
+  border-left:   1px solid var(--mid);
+  border-right:  1px solid var(--light);
+  border-bottom: 1px solid var(--light);
+  padding: 7px 8px;
+}
 
-        .uname {
-            font-size: 11px;
-            color: #555;
-            margin-top: 1px;
-            margin-bottom: 6px;
-        }
+/* Badge chips */
+.badge-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg);
+  border-top:    1px solid var(--light);
+  border-left:   1px solid var(--light);
+  border-right:  1px solid var(--mid);
+  border-bottom: 1px solid var(--mid);
+  padding: 2px 7px 2px 4px;
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--blue);
+  letter-spacing: 0.3px;
+}
+.badge-chip img {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+#badges-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
 
-        .custom-status {
-            font-size: 11px;
-            background: #d4d0c8;
-            border-top: 1px solid #7b7b7b;
-            border-left: 1px solid #7b7b7b;
-            border-right: 1px solid #fff;
-            border-bottom: 1px solid #fff;
-            padding: 3px 6px;
-            color: #222;
-            margin-bottom: 6px;
-            min-height: 22px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+/* Platforms */
+#plat-list {
+  display: flex;
+  gap: 14px;
+}
+.plat-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+}
+.plat-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--mid);
+  border: 1px solid #444;
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+.plat-dot.on { background: #00b050; border-color: #007030; }
 
-        .clan-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: #000080;
-            color: #fff;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 2px 7px 2px 4px;
-            border-top: 1px solid #5555cc;
-            border-left: 1px solid #5555cc;
-            border-right: 1px solid #00002a;
-            border-bottom: 1px solid #00002a;
-            letter-spacing: 0.5px;
-        }
-        .clan-img { width: 14px; height: 14px; }
-
-        /* ── SECTION LABEL ── */
-        .sec-label {
-            font-size: 10px;
-            color: #555;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            padding: 0 2px;
-        }
-
-        /* ── BADGES ── */
-        .badges-row {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            padding: 8px;
-            background: #d4d0c8;
-            border-top: 1px solid #7b7b7b;
-            border-left: 1px solid #7b7b7b;
-            border-right: 1px solid #fff;
-            border-bottom: 1px solid #fff;
-            min-height: 40px;
-            align-items: center;
-        }
-
-        .badge-item {
-            width: 24px; height: 24px;
-            position: relative;
-            cursor: default;
-        }
-        .badge-item img {
-            width: 100%; height: 100%;
-            image-rendering: auto;
-        }
-        .badge-item:hover::after {
-            content: attr(data-tip);
-            position: absolute;
-            bottom: calc(100% + 4px);
-            left: 50%; transform: translateX(-50%);
-            white-space: nowrap;
-            background: #ffffcc;
-            border: 1px solid #000;
-            padding: 2px 5px;
-            font-size: 10px;
-            color: #000;
-            pointer-events: none;
-            z-index: 99;
-        }
-
-        /* ── PLATFORMS ── */
-        .platforms {
-            display: flex;
-            gap: 12px;
-            padding: 6px 8px;
-            background: #d4d0c8;
-            border-top: 1px solid #7b7b7b;
-            border-left: 1px solid #7b7b7b;
-            border-right: 1px solid #fff;
-            border-bottom: 1px solid #fff;
-            font-size: 11px;
-            align-items: center;
-        }
-        .plat {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .plat-dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background: #747f8d;
-            transition: background 0.3s;
-        }
-        .plat-dot.on { background: #00c853; }
-
-        /* ── STATUS BAR ── */
-        .statusbar {
-            border-top: 1px solid #7b7b7b;
-            padding: 3px 6px;
-            display: flex;
-            gap: 4px;
-            font-size: 10px;
-        }
-        .sb-panel {
-            flex: 1;
-            border-top: 1px solid #7b7b7b;
-            border-left: 1px solid #7b7b7b;
-            border-right: 1px solid #fff;
-            border-bottom: 1px solid #fff;
-            padding: 1px 5px;
-            color: #000;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-        .sb-panel.shrink { flex: 0; }
-    </style>
+/* Status bar */
+.statusbar {
+  border-top: 1px solid var(--mid);
+  padding: 3px 4px;
+  display: flex;
+  gap: 3px;
+  font-size: 10px;
+}
+.sb-cell {
+  border-top:    1px solid var(--mid);
+  border-left:   1px solid var(--mid);
+  border-right:  1px solid var(--light);
+  border-bottom: 1px solid var(--light);
+  padding: 1px 5px;
+  color: #111;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.sb-cell.grow  { flex: 1; }
+.sb-cell.fixed { flex: 0; }
+</style>
 </head>
 <body>
 
 <div class="window">
-    <div class="title-bar">
-        <div class="title-bar-left">
-            <span class="title-icon">👤</span>
-            <span>Profile.exe</span>
-        </div>
-        <div class="tb-buttons">
-            <div class="tb-btn">_</div>
-            <div class="tb-btn">□</div>
-            <div class="tb-btn">✕</div>
-        </div>
+  <div class="titlebar">
+    <div class="tb-title"><span>👤</span> Profile.exe</div>
+    <div class="tb-btns">
+      <div class="tb-btn">_</div>
+      <div class="tb-btn">□</div>
+      <div class="tb-btn">✕</div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <div class="nameplate" id="nameplate">🌸 · · · · · 🌸</div>
+
+    <div class="profile-panel">
+      <div class="avatar-wrap">
+        <img class="avatar" id="avatar"
+          src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+          alt="avatar">
+        <div class="pip offline" id="pip"></div>
+      </div>
+      <div class="info">
+        <div class="d-name" id="dname">xgg.2</div>
+        <div class="u-name" id="uname">@opx4</div>
+        <div class="status-box" id="cstatus">&gt; ...</div>
+        <div id="clan-area"></div>
+      </div>
     </div>
 
-    <div class="win-body">
-
-        <div class="nameplate" id="nameplate">LOADING...</div>
-
-        <div class="card">
-            <div class="avatar-col">
-                <img class="avatar" id="avatar" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="avatar">
-                <div class="status-ring s-offline" id="status-ring"></div>
-            </div>
-            <div class="info-col">
-                <div class="dname" id="dname">—</div>
-                <div class="uname" id="uname">@—</div>
-                <div class="custom-status" id="custom-status">&gt; ...</div>
-                <div id="clan-area"></div>
-            </div>
-        </div>
-
-        <div class="sec-label">[ Badges ]</div>
-        <div class="badges-row" id="badges-row">
-            <span style="font-size:11px;color:#888">Loading...</span>
-        </div>
-
-        <div class="sec-label">[ Active On ]</div>
-        <div class="platforms">
-            <div class="plat">
-                <div class="plat-dot" id="dot-mobile"></div>
-                <span>Mobile</span>
-            </div>
-            <div class="plat">
-                <div class="plat-dot" id="dot-desktop"></div>
-                <span>Desktop</span>
-            </div>
-            <div class="plat">
-                <div class="plat-dot" id="dot-web"></div>
-                <span>Web</span>
-            </div>
-        </div>
-
+    <div class="group-label">[ Badges ]</div>
+    <div class="group">
+      <div id="badges-list">
+        <span style="font-size:10px;color:#777">Loading...</span>
+      </div>
     </div>
 
-    <div class="statusbar">
-        <div class="sb-panel" id="sb-status">Status: —</div>
-        <div class="sb-panel shrink">xgg-2.is-a.dev</div>
+    <div class="group-label">[ Active On ]</div>
+    <div class="group">
+      <div id="plat-list">
+        <div class="plat-item">
+          <div class="plat-dot" id="dot-mobile"></div><span>Mobile</span>
+        </div>
+        <div class="plat-item">
+          <div class="plat-dot" id="dot-desktop"></div><span>Desktop</span>
+        </div>
+        <div class="plat-item">
+          <div class="plat-dot" id="dot-web"></div><span>Web</span>
+        </div>
+      </div>
     </div>
+
+  </div>
+
+  <div class="statusbar">
+    <div class="sb-cell grow" id="sb-status">Status: —</div>
+    <div class="sb-cell fixed">xgg-2.is-a.dev</div>
+  </div>
 </div>
 
 <script>
 const UID = "1159928250148077728";
 
-const BADGE_MAP = [
-    { flag: 64,      name: "HypeSquad Bravery",    icon: "https://cdn.discordapp.com/badge-icons/8ef774f798a663de309684f7b35f8026.png" },
-    { flag: 128,     name: "HypeSquad Brilliance",  icon: "https://cdn.discordapp.com/badge-icons/011940fd013082d99d0e69f9e7030d36.png" },
-    { flag: 256,     name: "HypeSquad Balance",     icon: "https://cdn.discordapp.com/badge-icons/3aa41de486fa12454c3761e8e223442e.png" },
-    { flag: 1048576, name: "Active Developer",      icon: "https://cdn.discordapp.com/badge-icons/6bdc42827a38498929a4920da12695d9.png" },
-    { flag: 4194304, name: "Legacy Username",       icon: "https://cdn.discordapp.com/badge-icons/4a7f4bb3d7e49d504b72c76c7c75e9e5.png" },
+const BADGE_DEFS = [
+  { flag: 64,      short: "BRAVERY",     label: "HypeSquad Bravery",    icon: "https://cdn.discordapp.com/badge-icons/8ef774f798a663de309684f7b35f8026.png" },
+  { flag: 128,     short: "BRILLIANCE",  label: "HypeSquad Brilliance",  icon: "https://cdn.discordapp.com/badge-icons/011940fd013082d99d0e69f9e7030d36.png" },
+  { flag: 256,     short: "BALANCE",     label: "HypeSquad Balance",     icon: "https://cdn.discordapp.com/badge-icons/3aa41de486fa12454c3761e8e223442e.png" },
+  { flag: 1048576, short: "DEV",         label: "Active Developer",      icon: "https://cdn.discordapp.com/badge-icons/6bdc42827a38498929a4920da12695d9.png" },
 ];
 
-const STATUS_CLASS = { online:"s-online", idle:"s-idle", dnd:"s-dnd", offline:"s-offline" };
+const PIP_STATUS = { online:"online", idle:"idle", dnd:"dnd", offline:"offline" };
 
-async function update() {
-    try {
-        const res  = await fetch(`https://api.lanyard.rest/v1/users/${UID}`);
-        const json = await res.json();
-        if (!json.success) return;
-        const d = json.data;
-        const u = d.discord_user;
-
-        // Nameplate
-        document.getElementById("nameplate").textContent = `🌸  ${u.display_name || u.global_name || u.username}  🌸`;
-
-        // Avatar
-        const ext = u.avatar?.startsWith("a_") ? "gif" : "png";
-        document.getElementById("avatar").src =
-            `https://cdn.discordapp.com/avatars/${UID}/${u.avatar}.${ext}?size=128`;
-
-        // Status ring
-        const ring = document.getElementById("status-ring");
-        ring.className = "status-ring " + (STATUS_CLASS[d.discord_status] || "s-offline");
-
-        // Names
-        document.getElementById("dname").textContent = u.display_name || u.global_name || u.username;
-        document.getElementById("uname").textContent = `@${u.username}`;
-
-        // Custom status
-        const act = (d.activities || []).find(a => a.type === 4);
-        document.getElementById("custom-status").textContent =
-            act?.state ? `> ${act.state}` : `> —`;
-
-        // Clan
-        const clanArea = document.getElementById("clan-area");
-        if (u.primary_guild && u.primary_guild.identity_enabled) {
-            const g = u.primary_guild;
-            clanArea.innerHTML = `
-                <div class="clan-tag">
-                    <img class="clan-img"
-                         src="https://cdn.discordapp.com/clan-badges/${g.identity_guild_id}/${g.badge}.png?size=16"
-                         onerror="this.style.display='none'"
-                         alt="clan">
-                    ${g.tag}
-                </div>`;
-        }
-
-        // Badges
-        const badgesRow = document.getElementById("badges-row");
-        const flags = u.public_flags || 0;
-        const matched = BADGE_MAP.filter(b => flags & b.flag);
-        if (matched.length) {
-            badgesRow.innerHTML = matched.map(b =>
-                `<div class="badge-item" data-tip="${b.name}">
-                    <img src="${b.icon}" alt="${b.name}">
-                 </div>`
-            ).join("");
-        } else {
-            badgesRow.innerHTML = `<span style="font-size:11px;color:#888">No badges</span>`;
-        }
-
-        // Platforms
-        const setDot = (id, on) => {
-            const el = document.getElementById(id);
-            if (on) el.classList.add("on"); else el.classList.remove("on");
-        };
-        setDot("dot-mobile",  d.active_on_discord_mobile);
-        setDot("dot-desktop", d.active_on_discord_desktop);
-        setDot("dot-web",     d.active_on_discord_web);
-
-        // Status bar
-        document.getElementById("sb-status").textContent =
-            `Status: ${d.discord_status}  •  ${new Date().toLocaleTimeString()}`;
-
-    } catch(e) {
-        document.getElementById("sb-status").textContent = "Error: could not load";
-    }
+function dot(id, on) {
+  const el = document.getElementById(id);
+  if (on) el.classList.add("on"); else el.classList.remove("on");
 }
 
-update();
-setInterval(update, 30000);
+async function load() {
+  try {
+    const res  = await fetch("https://api.lanyard.rest/v1/users/" + UID);
+    const json = await res.json();
+    if (!json.success) return;
+    const d = json.data;
+    const u = d.discord_user;
+
+    // Nameplate
+    const name = u.display_name || u.global_name || u.username;
+    document.getElementById("nameplate").textContent = "🌸  " + name + "  🌸";
+
+    // Avatar
+    const ext = u.avatar?.startsWith("a_") ? "gif" : "png";
+    document.getElementById("avatar").src =
+      "https://cdn.discordapp.com/avatars/" + UID + "/" + u.avatar + "." + ext + "?size=128";
+
+    // Status pip
+    const pip = document.getElementById("pip");
+    pip.className = "pip " + (PIP_STATUS[d.discord_status] || "offline");
+
+    // Names
+    document.getElementById("dname").textContent = name;
+    document.getElementById("uname").textContent = "@" + u.username;
+
+    // Custom status
+    const act = (d.activities || []).find(a => a.type === 4);
+    document.getElementById("cstatus").textContent =
+      act?.state ? "> " + act.state : "> —";
+
+    // Clan
+    const g = u.primary_guild;
+    if (g && g.identity_enabled) {
+      document.getElementById("clan-area").innerHTML =
+        "<div class='clan-pill'>" +
+        "<img class='clan-icon' src='https://cdn.discordapp.com/clan-badges/" +
+        g.identity_guild_id + "/" + g.badge + ".png?size=16' " +
+        "onerror=\"this.style.display='none'\" alt=''>" +
+        g.tag + "</div>";
+    }
+
+    // Badges
+    const flags = u.public_flags || 0;
+    const list  = document.getElementById("badges-list");
+    const chips = BADGE_DEFS.filter(b => flags & b.flag).map(b =>
+      "<div class='badge-chip'>" +
+      "<img src='" + b.icon + "' alt='' onerror=\"this.style.display='none'\">" +
+      b.short + "</div>"
+    );
+    list.innerHTML = chips.length
+      ? chips.join("")
+      : "<span style='font-size:10px;color:#777'>—</span>";
+
+    // Platforms
+    dot("dot-mobile",  d.active_on_discord_mobile);
+    dot("dot-desktop", d.active_on_discord_desktop);
+    dot("dot-web",     d.active_on_discord_web);
+
+    // Status bar
+    const t = new Date().toLocaleTimeString("en-GB");
+    document.getElementById("sb-status").textContent =
+      "Status: " + d.discord_status + "  •  " + t;
+
+  } catch (e) {
+    document.getElementById("sb-status").textContent = "Error: failed to load";
+  }
+}
+
+load();
+setInterval(load, 30000);
 </script>
 </body>
 </html>
