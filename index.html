@@ -1,161 +1,433 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coming Soon</title>
+    <title>xgg.2 — profile</title>
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
             background-color: #008080;
-            margin: 0;
-            padding: 0;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0,0,0,0.04) 1px, rgba(0,0,0,0.04) 2px),
+                repeating-linear-gradient(90deg, transparent, transparent 1px, rgba(0,0,0,0.04) 1px, rgba(0,0,0,0.04) 2px);
+            background-size: 4px 4px;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            padding: 20px;
             font-family: "Courier New", Courier, monospace;
         }
 
-        .main-frame {
-            background-color: #c0c0c0;
-            border-top: 2px solid #ffffff;
-            border-left: 2px solid #ffffff;
-            border-right: 2px solid #000000;
-            border-bottom: 2px solid #000000;
-            width: 400px;
-            padding: 2px;
-            box-shadow: 5px 5px 0px rgba(0,0,0,0.2);
+        /* ── WINDOW ── */
+        .window {
+            width: 460px;
+            background: #c0c0c0;
+            border-top: 2px solid #fff;
+            border-left: 2px solid #fff;
+            border-right: 2px solid #000;
+            border-bottom: 2px solid #000;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.35);
         }
 
         .title-bar {
-            background-color: #000080;
-            color: #ffffff;
-            padding: 4px 8px;
+            background: linear-gradient(90deg, #000080, #1084d0);
+            color: #fff;
+            padding: 3px 4px 3px 6px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
             font-weight: bold;
-            font-size: 14px;
+            user-select: none;
+            letter-spacing: 0.5px;
         }
 
-        .close-icon {
-            background-color: #c0c0c0;
-            border-top: 1px solid #ffffff;
-            border-left: 1px solid #ffffff;
-            border-right: 1px solid #7b7b7b;
-            border-bottom: 1px solid #7b7b7b;
-            width: 16px;
-            height: 14px;
+        .title-bar-left { display: flex; align-items: center; gap: 6px; }
+        .title-icon { font-size: 13px; }
+
+        .tb-buttons { display: flex; gap: 2px; }
+        .tb-btn {
+            width: 16px; height: 14px;
+            background: #c0c0c0;
+            border-top: 1px solid #fff;
+            border-left: 1px solid #fff;
+            border-right: 1px solid #000;
+            border-bottom: 1px solid #000;
+            font-size: 9px;
             color: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            font-size: 12px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: default;
             font-family: sans-serif;
         }
 
-        .close-icon:active {
-            border: 1px solid #000;
-            border-top-color: #7b7b7b;
-            border-left-color: #7b7b7b;
-        }
+        /* ── BODY ── */
+        .win-body { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
 
-        .content {
-            border: 1px solid #7b7b7b;
-            margin: 10px;
-            padding: 30px 10px;
+        /* ── NAMEPLATE ── */
+        .nameplate {
             text-align: center;
-            background-color: #c0c0c0;
+            padding: 5px 10px;
+            background: #f0e8f4;
+            border-top: 1px solid #d4a0cc;
+            border-left: 1px solid #d4a0cc;
+            border-right: 1px solid #a06080;
+            border-bottom: 1px solid #a06080;
+            color: #7a2060;
+            font-size: 12px;
+            letter-spacing: 3px;
+            position: relative;
+            overflow: hidden;
         }
-
-        h1 {
-            font-size: 24px;
-            margin: 0 0 15px 0;
-            color: #000;
-            letter-spacing: 2px;
+        .nameplate::before, .nameplate::after {
+            content: "🌸";
+            position: absolute;
+            top: 50%; transform: translateY(-50%);
+            opacity: 0.6;
         }
+        .nameplate::before { left: 8px; }
+        .nameplate::after { right: 8px; }
 
-        .divider {
-            height: 2px;
-            background-color: #7b7b7b;
-            border-bottom: 1px solid #ffffff;
-            margin: 15px 0;
-        }
-
-        .message {
-            font-size: 14px;
-            color: #000;
-            margin-bottom: 20px;
-        }
-
-        .button-zone {
+        /* ── PROFILE CARD ── */
+        .card {
+            border-top: 1px solid #fff;
+            border-left: 1px solid #fff;
+            border-right: 1px solid #7b7b7b;
+            border-bottom: 1px solid #7b7b7b;
+            background: #c8c8c8;
+            padding: 10px;
             display: flex;
-            justify-content: center;
-            padding-bottom: 10px;
+            gap: 12px;
+            align-items: flex-start;
         }
 
-        .win-button {
-            background-color: #c0c0c0;
-            border-top: 1px solid #ffffff;
-            border-left: 1px solid #ffffff;
-            border-right: 1px solid #000;
-            border-bottom: 1px solid #000;
-            padding: 6px 30px;
-            cursor: pointer;
-            font-family: inherit;
+        .avatar-col { flex-shrink: 0; position: relative; }
+
+        .avatar {
+            width: 76px;
+            height: 76px;
+            display: block;
+            border-top: 2px solid #000;
+            border-left: 2px solid #000;
+            border-right: 2px solid #fff;
+            border-bottom: 2px solid #fff;
+            background: #888;
+            image-rendering: auto;
+        }
+
+        .status-ring {
+            position: absolute;
+            bottom: -1px; right: -1px;
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            border: 2px solid #c8c8c8;
+            background: #777;
+            transition: background 0.3s;
+        }
+        .s-online  { background: #00c853; }
+        .s-idle    { background: #ffa000; }
+        .s-dnd     { background: #dd2222; }
+        .s-offline { background: #747f8d; }
+
+        .info-col { flex: 1; min-width: 0; }
+
+        .dname {
+            font-size: 16px;
             font-weight: bold;
-            outline: 1px solid #7b7b7b;
+            color: #000080;
+            letter-spacing: 1px;
+            line-height: 1.2;
         }
 
-        .win-button:active {
+        .uname {
+            font-size: 11px;
+            color: #555;
+            margin-top: 1px;
+            margin-bottom: 6px;
+        }
+
+        .custom-status {
+            font-size: 11px;
+            background: #d4d0c8;
+            border-top: 1px solid #7b7b7b;
+            border-left: 1px solid #7b7b7b;
+            border-right: 1px solid #fff;
+            border-bottom: 1px solid #fff;
+            padding: 3px 6px;
+            color: #222;
+            margin-bottom: 6px;
+            min-height: 22px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .clan-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #000080;
+            color: #fff;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 7px 2px 4px;
+            border-top: 1px solid #5555cc;
+            border-left: 1px solid #5555cc;
+            border-right: 1px solid #00002a;
+            border-bottom: 1px solid #00002a;
+            letter-spacing: 0.5px;
+        }
+        .clan-img { width: 14px; height: 14px; }
+
+        /* ── SECTION LABEL ── */
+        .sec-label {
+            font-size: 10px;
+            color: #555;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 0 2px;
+        }
+
+        /* ── BADGES ── */
+        .badges-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            padding: 8px;
+            background: #d4d0c8;
+            border-top: 1px solid #7b7b7b;
+            border-left: 1px solid #7b7b7b;
+            border-right: 1px solid #fff;
+            border-bottom: 1px solid #fff;
+            min-height: 40px;
+            align-items: center;
+        }
+
+        .badge-item {
+            width: 24px; height: 24px;
+            position: relative;
+            cursor: default;
+        }
+        .badge-item img {
+            width: 100%; height: 100%;
+            image-rendering: auto;
+        }
+        .badge-item:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: calc(100% + 4px);
+            left: 50%; transform: translateX(-50%);
+            white-space: nowrap;
+            background: #ffffcc;
             border: 1px solid #000;
-            border-top-color: #7b7b7b;
-            border-left-color: #7b7b7b;
+            padding: 2px 5px;
+            font-size: 10px;
+            color: #000;
+            pointer-events: none;
+            z-index: 99;
         }
 
-        #hidden-trigger {
-            display: none;
-            color: #ffffff;
-            text-decoration: underline;
-            cursor: pointer;
+        /* ── PLATFORMS ── */
+        .platforms {
+            display: flex;
+            gap: 12px;
+            padding: 6px 8px;
+            background: #d4d0c8;
+            border-top: 1px solid #7b7b7b;
+            border-left: 1px solid #7b7b7b;
+            border-right: 1px solid #fff;
+            border-bottom: 1px solid #fff;
+            font-size: 11px;
+            align-items: center;
         }
+        .plat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .plat-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #747f8d;
+            transition: background 0.3s;
+        }
+        .plat-dot.on { background: #00c853; }
+
+        /* ── STATUS BAR ── */
+        .statusbar {
+            border-top: 1px solid #7b7b7b;
+            padding: 3px 6px;
+            display: flex;
+            gap: 4px;
+            font-size: 10px;
+        }
+        .sb-panel {
+            flex: 1;
+            border-top: 1px solid #7b7b7b;
+            border-left: 1px solid #7b7b7b;
+            border-right: 1px solid #fff;
+            border-bottom: 1px solid #fff;
+            padding: 1px 5px;
+            color: #000;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .sb-panel.shrink { flex: 0; }
     </style>
 </head>
 <body>
 
-    <div class="main-frame" id="box">
-        <div class="title-bar">
-            <span>INFORMATION</span>
-            <div class="close-icon" onclick="toggle()">&#10005;</div>
+<div class="window">
+    <div class="title-bar">
+        <div class="title-bar-left">
+            <span class="title-icon">👤</span>
+            <span>Profile.exe</span>
         </div>
-        
-        <div class="content">
-            <h1>COMING SOON</h1>
-            <div class="divider"></div>
-            <p class="message">The system is currently updating.<br>Please stand by...</p>
-        </div>
-
-        <div class="button-zone">
-            <button class="win-button" onclick="toggle()">OK</button>
+        <div class="tb-buttons">
+            <div class="tb-btn">_</div>
+            <div class="tb-btn">□</div>
+            <div class="tb-btn">✕</div>
         </div>
     </div>
 
-    <div id="hidden-trigger" onclick="toggle()">Show Details</div>
+    <div class="win-body">
 
-    <script>
-        function toggle() {
-            var b = document.getElementById('box');
-            var t = document.getElementById('hidden-trigger');
-            if (b.style.display === 'none') {
-                b.style.display = 'block';
-                t.style.display = 'none';
-            } else {
-                b.style.display = 'none';
-                t.style.display = 'block';
-            }
+        <div class="nameplate" id="nameplate">LOADING...</div>
+
+        <div class="card">
+            <div class="avatar-col">
+                <img class="avatar" id="avatar" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="avatar">
+                <div class="status-ring s-offline" id="status-ring"></div>
+            </div>
+            <div class="info-col">
+                <div class="dname" id="dname">—</div>
+                <div class="uname" id="uname">@—</div>
+                <div class="custom-status" id="custom-status">&gt; ...</div>
+                <div id="clan-area"></div>
+            </div>
+        </div>
+
+        <div class="sec-label">[ Badges ]</div>
+        <div class="badges-row" id="badges-row">
+            <span style="font-size:11px;color:#888">Loading...</span>
+        </div>
+
+        <div class="sec-label">[ Active On ]</div>
+        <div class="platforms">
+            <div class="plat">
+                <div class="plat-dot" id="dot-mobile"></div>
+                <span>Mobile</span>
+            </div>
+            <div class="plat">
+                <div class="plat-dot" id="dot-desktop"></div>
+                <span>Desktop</span>
+            </div>
+            <div class="plat">
+                <div class="plat-dot" id="dot-web"></div>
+                <span>Web</span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="statusbar">
+        <div class="sb-panel" id="sb-status">Status: —</div>
+        <div class="sb-panel shrink">xgg-2.is-a.dev</div>
+    </div>
+</div>
+
+<script>
+const UID = "1159928250148077728";
+
+const BADGE_MAP = [
+    { flag: 64,      name: "HypeSquad Bravery",    icon: "https://cdn.discordapp.com/badge-icons/8ef774f798a663de309684f7b35f8026.png" },
+    { flag: 128,     name: "HypeSquad Brilliance",  icon: "https://cdn.discordapp.com/badge-icons/011940fd013082d99d0e69f9e7030d36.png" },
+    { flag: 256,     name: "HypeSquad Balance",     icon: "https://cdn.discordapp.com/badge-icons/3aa41de486fa12454c3761e8e223442e.png" },
+    { flag: 1048576, name: "Active Developer",      icon: "https://cdn.discordapp.com/badge-icons/6bdc42827a38498929a4920da12695d9.png" },
+    { flag: 4194304, name: "Legacy Username",       icon: "https://cdn.discordapp.com/badge-icons/4a7f4bb3d7e49d504b72c76c7c75e9e5.png" },
+];
+
+const STATUS_CLASS = { online:"s-online", idle:"s-idle", dnd:"s-dnd", offline:"s-offline" };
+
+async function update() {
+    try {
+        const res  = await fetch(`https://api.lanyard.rest/v1/users/${UID}`);
+        const json = await res.json();
+        if (!json.success) return;
+        const d = json.data;
+        const u = d.discord_user;
+
+        // Nameplate
+        document.getElementById("nameplate").textContent = `🌸  ${u.display_name || u.global_name || u.username}  🌸`;
+
+        // Avatar
+        const ext = u.avatar?.startsWith("a_") ? "gif" : "png";
+        document.getElementById("avatar").src =
+            `https://cdn.discordapp.com/avatars/${UID}/${u.avatar}.${ext}?size=128`;
+
+        // Status ring
+        const ring = document.getElementById("status-ring");
+        ring.className = "status-ring " + (STATUS_CLASS[d.discord_status] || "s-offline");
+
+        // Names
+        document.getElementById("dname").textContent = u.display_name || u.global_name || u.username;
+        document.getElementById("uname").textContent = `@${u.username}`;
+
+        // Custom status
+        const act = (d.activities || []).find(a => a.type === 4);
+        document.getElementById("custom-status").textContent =
+            act?.state ? `> ${act.state}` : `> —`;
+
+        // Clan
+        const clanArea = document.getElementById("clan-area");
+        if (u.primary_guild && u.primary_guild.identity_enabled) {
+            const g = u.primary_guild;
+            clanArea.innerHTML = `
+                <div class="clan-tag">
+                    <img class="clan-img"
+                         src="https://cdn.discordapp.com/clan-badges/${g.identity_guild_id}/${g.badge}.png?size=16"
+                         onerror="this.style.display='none'"
+                         alt="clan">
+                    ${g.tag}
+                </div>`;
         }
-    </script>
+
+        // Badges
+        const badgesRow = document.getElementById("badges-row");
+        const flags = u.public_flags || 0;
+        const matched = BADGE_MAP.filter(b => flags & b.flag);
+        if (matched.length) {
+            badgesRow.innerHTML = matched.map(b =>
+                `<div class="badge-item" data-tip="${b.name}">
+                    <img src="${b.icon}" alt="${b.name}">
+                 </div>`
+            ).join("");
+        } else {
+            badgesRow.innerHTML = `<span style="font-size:11px;color:#888">No badges</span>`;
+        }
+
+        // Platforms
+        const setDot = (id, on) => {
+            const el = document.getElementById(id);
+            if (on) el.classList.add("on"); else el.classList.remove("on");
+        };
+        setDot("dot-mobile",  d.active_on_discord_mobile);
+        setDot("dot-desktop", d.active_on_discord_desktop);
+        setDot("dot-web",     d.active_on_discord_web);
+
+        // Status bar
+        document.getElementById("sb-status").textContent =
+            `Status: ${d.discord_status}  •  ${new Date().toLocaleTimeString()}`;
+
+    } catch(e) {
+        document.getElementById("sb-status").textContent = "Error: could not load";
+    }
+}
+
+update();
+setInterval(update, 30000);
+</script>
 </body>
 </html>
