@@ -2,434 +2,91 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>xgg.2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Counter</title>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
-  --bg:     #c0c0c0;
-  --dark:   #000000;
-  --light:  #ffffff;
-  --mid:    #7b7b7b;
-  --sunken: #d4d0c8;
-  --blue:   #000080;
-  --desk:   #008080;
+    --bg:#111;
+    --fg:#eee;
 }
 
 body {
-  min-height: 100vh;
-  background-color: var(--desk);
-  background-image: repeating-linear-gradient(
-    0deg, transparent, transparent 3px,
-    rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px
-  );
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "Courier New", Courier, monospace;
-  padding: 20px;
+    margin:0;
+    height:100vh;
+    background:var(--bg);
+    color:var(--fg);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+    touch-action:manipulation;
+    user-select:none;
 }
 
-/* Window */
-.window {
-  width: 400px;
-  background: var(--bg);
-  border-top:    2px solid var(--light);
-  border-left:   2px solid var(--light);
-  border-right:  2px solid var(--dark);
-  border-bottom: 2px solid var(--dark);
-  box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+#counter {
+    font-size:35vw;
+    font-weight:900;
+    font-variant-numeric:tabular-nums;
+    letter-spacing:-0.05em;
+    transition:transform 0.05s cubic-bezier(0,0,0.2,1);
+    will-change:transform;
 }
 
-/* Title bar */
-.titlebar {
-  height: 24px;
-  background: linear-gradient(90deg, #000080, #1464b4);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 3px 0 6px;
-  user-select: none;
-}
-.tb-title {
-  color: #fff;
-  font-size: 12px;
-  font-weight: bold;
-  letter-spacing: 0.5px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.tb-btns { display: flex; gap: 2px; }
-.tb-btn {
-  width: 17px; height: 15px;
-  background: var(--bg);
-  border-top:    1px solid var(--light);
-  border-left:   1px solid var(--light);
-  border-right:  1px solid var(--dark);
-  border-bottom: 1px solid var(--dark);
-  font-size: 9px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: default;
-  color: var(--dark);
+body:active #counter {
+    transform:scale(0.96);
+    opacity:0.8;
 }
 
-/* Body */
-.body {
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.overlay {
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background:url('https://www.transparenttextures.com/patterns/asfalt-dark.png');
+    opacity:0.1;
 }
-
-/* Nameplate */
-.nameplate {
-  background: #f5eaf2;
-  border-top:    1px solid #c090b0;
-  border-left:   1px solid #c090b0;
-  border-right:  1px solid #8a5070;
-  border-bottom: 1px solid #8a5070;
-  padding: 4px 8px;
-  text-align: center;
-  font-size: 11px;
-  letter-spacing: 4px;
-  color: #6a1845;
-  font-weight: bold;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Profile panel */
-.profile-panel {
-  padding: 10px;
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  border-top:    1px solid var(--mid);
-  border-left:   1px solid var(--mid);
-  border-right:  1px solid var(--light);
-  border-bottom: 1px solid var(--light);
-}
-
-.avatar-wrap { position: relative; flex-shrink: 0; }
-.avatar {
-  display: block;
-  width: 72px;
-  height: 72px;
-  border-top:    2px solid var(--mid);
-  border-left:   2px solid var(--mid);
-  border-right:  2px solid var(--light);
-  border-bottom: 2px solid var(--light);
-  background: #888;
-  object-fit: cover;
-}
-.pip {
-  position: absolute;
-  bottom: 0; right: 0;
-  width: 13px; height: 13px;
-  border-radius: 50%;
-  border: 2px solid var(--bg);
-  background: var(--mid);
-}
-.pip.online  { background: #00b050; }
-.pip.idle    { background: #e8a000; }
-.pip.dnd     { background: #cc2020; }
-.pip.offline { background: #747f8d; }
-
-.info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-.d-name {
-  font-size: 15px;
-  font-weight: bold;
-  color: var(--blue);
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.u-name { font-size: 10px; color: #555; margin-top: -3px; }
-
-.status-box {
-  background: var(--sunken);
-  border-top:    1px solid var(--mid);
-  border-left:   1px solid var(--mid);
-  border-right:  1px solid var(--light);
-  border-bottom: 1px solid var(--light);
-  padding: 3px 6px;
-  font-size: 11px;
-  color: #111;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.clan-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: var(--blue);
-  color: #fff;
-  font-size: 10px;
-  font-weight: bold;
-  letter-spacing: 0.5px;
-  padding: 2px 8px 2px 4px;
-  border-top:    1px solid #4444aa;
-  border-left:   1px solid #4444aa;
-  border-right:  1px solid #00002a;
-  border-bottom: 1px solid #00002a;
-}
-.clan-icon {
-  width: 13px;
-  height: 13px;
-}
-
-/* Group label */
-.group-label {
-  font-size: 10px;
-  color: #444;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-
-/* Group box */
-.group {
-  background: var(--sunken);
-  border-top:    1px solid var(--mid);
-  border-left:   1px solid var(--mid);
-  border-right:  1px solid var(--light);
-  border-bottom: 1px solid var(--light);
-  padding: 7px 8px;
-}
-
-/* Badge chips */
-.badge-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: var(--bg);
-  border-top:    1px solid var(--light);
-  border-left:   1px solid var(--light);
-  border-right:  1px solid var(--mid);
-  border-bottom: 1px solid var(--mid);
-  padding: 2px 7px 2px 4px;
-  font-size: 10px;
-  font-weight: bold;
-  color: var(--blue);
-  letter-spacing: 0.3px;
-}
-.badge-chip img {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-}
-#badges-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-
-/* Platforms */
-#plat-list {
-  display: flex;
-  gap: 14px;
-}
-.plat-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-}
-.plat-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--mid);
-  border: 1px solid #444;
-  flex-shrink: 0;
-  transition: background 0.3s;
-}
-.plat-dot.on { background: #00b050; border-color: #007030; }
-
-/* Status bar */
-.statusbar {
-  border-top: 1px solid var(--mid);
-  padding: 3px 4px;
-  display: flex;
-  gap: 3px;
-  font-size: 10px;
-}
-.sb-cell {
-  border-top:    1px solid var(--mid);
-  border-left:   1px solid var(--mid);
-  border-right:  1px solid var(--light);
-  border-bottom: 1px solid var(--light);
-  padding: 1px 5px;
-  color: #111;
-  white-space: nowrap;
-  overflow: hidden;
-}
-.sb-cell.grow  { flex: 1; }
-.sb-cell.fixed { flex: 0; }
 </style>
 </head>
 <body>
 
-<div class="window">
-  <div class="titlebar">
-    <div class="tb-title"><span>👤</span> Profile.exe</div>
-    <div class="tb-btns">
-      <div class="tb-btn">_</div>
-      <div class="tb-btn">□</div>
-      <div class="tb-btn">✕</div>
-    </div>
-  </div>
-
-  <div class="body">
-
-    <div class="nameplate" id="nameplate">🌸 · · · · · 🌸</div>
-
-    <div class="profile-panel">
-      <div class="avatar-wrap">
-        <img class="avatar" id="avatar"
-          src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
-          alt="avatar">
-        <div class="pip offline" id="pip"></div>
-      </div>
-      <div class="info">
-        <div class="d-name" id="dname">xgg.2</div>
-        <div class="u-name" id="uname">@opx4</div>
-        <div class="status-box" id="cstatus">&gt; ...</div>
-        <div id="clan-area"></div>
-      </div>
-    </div>
-
-    <div class="group-label">[ Badges ]</div>
-    <div class="group">
-      <div id="badges-list">
-        <span style="font-size:10px;color:#777">Loading...</span>
-      </div>
-    </div>
-
-    <div class="group-label">[ Active On ]</div>
-    <div class="group">
-      <div id="plat-list">
-        <div class="plat-item">
-          <div class="plat-dot" id="dot-mobile"></div><span>Mobile</span>
-        </div>
-        <div class="plat-item">
-          <div class="plat-dot" id="dot-desktop"></div><span>Desktop</span>
-        </div>
-        <div class="plat-item">
-          <div class="plat-dot" id="dot-web"></div><span>Web</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="statusbar">
-    <div class="sb-cell grow" id="sb-status">Status: —</div>
-    <div class="sb-cell fixed">xgg-2.is-a.dev</div>
-  </div>
-</div>
+<div class="overlay"></div>
+<div id="counter">0</div>
 
 <script>
-const UID = "1159928250148077728";
+let count=0;
+const el=document.getElementById('counter');
+let audioCtx;
 
-const BADGE_DEFS = [
-  { flag: 64,      short: "BRAVERY",     label: "HypeSquad Bravery",    icon: "https://cdn.discordapp.com/badge-icons/8ef774f798a663de309684f7b35f8026.png" },
-  { flag: 128,     short: "BRILLIANCE",  label: "HypeSquad Brilliance",  icon: "https://cdn.discordapp.com/badge-icons/011940fd013082d99d0e69f9e7030d36.png" },
-  { flag: 256,     short: "BALANCE",     label: "HypeSquad Balance",     icon: "https://cdn.discordapp.com/badge-icons/3aa41de486fa12454c3761e8e223442e.png" },
-  { flag: 1048576, short: "DEV",         label: "Active Developer",      icon: "https://cdn.discordapp.com/badge-icons/6bdc42827a38498929a4920da12695d9.png" },
-];
+const initAudio=()=>{
+if(!audioCtx)audioCtx=new(AudioContext||webkitAudioContext)();
+if(audioCtx.state==='suspended')audioCtx.resume();
+};
 
-const PIP_STATUS = { online:"online", idle:"idle", dnd:"dnd", offline:"offline" };
+const clickSound=()=>{
+const osc=audioCtx.createOscillator();
+const gain=audioCtx.createGain();
 
-function dot(id, on) {
-  const el = document.getElementById(id);
-  if (on) el.classList.add("on"); else el.classList.remove("on");
-}
+osc.type='square';
+osc.frequency.setValueAtTime(800,audioCtx.currentTime);
+osc.frequency.exponentialRampToValueAtTime(100,audioCtx.currentTime+0.02);
 
-async function load() {
-  try {
-    const res  = await fetch("https://api.lanyard.rest/v1/users/" + UID);
-    const json = await res.json();
-    if (!json.success) return;
-    const d = json.data;
-    const u = d.discord_user;
+gain.gain.setValueAtTime(0.1,audioCtx.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.02);
 
-    // Nameplate
-    const name = u.display_name || u.global_name || u.username;
-    document.getElementById("nameplate").textContent = "🌸  " + name + "  🌸";
+osc.connect(gain);
+gain.connect(audioCtx.destination);
 
-    // Avatar
-    const ext = u.avatar?.startsWith("a_") ? "gif" : "png";
-    document.getElementById("avatar").src =
-      "https://cdn.discordapp.com/avatars/" + UID + "/" + u.avatar + "." + ext + "?size=128";
+osc.start();
+osc.stop(audioCtx.currentTime+0.02);
+};
 
-    // Status pip
-    const pip = document.getElementById("pip");
-    pip.className = "pip " + (PIP_STATUS[d.discord_status] || "offline");
-
-    // Names
-    document.getElementById("dname").textContent = name;
-    document.getElementById("uname").textContent = "@" + u.username;
-
-    // Custom status
-    const act = (d.activities || []).find(a => a.type === 4);
-    document.getElementById("cstatus").textContent =
-      act?.state ? "> " + act.state : "> —";
-
-    // Clan
-    const g = u.primary_guild;
-    if (g && g.identity_enabled) {
-      document.getElementById("clan-area").innerHTML =
-        "<div class='clan-pill'>" +
-        "<img class='clan-icon' src='https://cdn.discordapp.com/clan-badges/" +
-        g.identity_guild_id + "/" + g.badge + ".png?size=16' " +
-        "onerror=\"this.style.display='none'\" alt=''>" +
-        g.tag + "</div>";
-    }
-
-    // Badges
-    const flags = u.public_flags || 0;
-    const list  = document.getElementById("badges-list");
-    const chips = BADGE_DEFS.filter(b => flags & b.flag).map(b =>
-      "<div class='badge-chip'>" +
-      "<img src='" + b.icon + "' alt='' onerror=\"this.style.display='none'\">" +
-      b.short + "</div>"
-    );
-    list.innerHTML = chips.length
-      ? chips.join("")
-      : "<span style='font-size:10px;color:#777'>—</span>";
-
-    // Platforms
-    dot("dot-mobile",  d.active_on_discord_mobile);
-    dot("dot-desktop", d.active_on_discord_desktop);
-    dot("dot-web",     d.active_on_discord_web);
-
-    // Status bar
-    const t = new Date().toLocaleTimeString("en-GB");
-    document.getElementById("sb-status").textContent =
-      "Status: " + d.discord_status + "  •  " + t;
-
-  } catch (e) {
-    document.getElementById("sb-status").textContent = "Error: failed to load";
-  }
-}
-
-load();
-setInterval(load, 30000);
+window.addEventListener('pointerdown',()=>{
+initAudio();
+count++;
+el.textContent=count;
+clickSound();
+});
 </script>
+
 </body>
 </html>
