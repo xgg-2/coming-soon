@@ -22,20 +22,17 @@ body {
     overflow:hidden;
     touch-action:manipulation;
     user-select:none;
+    overscroll-behavior:none;
 }
 
 #counter {
-    font-size:35vw;
+    font-size:clamp(80px, 35vw, 320px);
     font-weight:900;
     font-variant-numeric:tabular-nums;
     letter-spacing:-0.05em;
-    transition:transform 0.05s cubic-bezier(0,0,0.2,1);
+    transition:transform 0.06s cubic-bezier(0,0,0.2,1);
     will-change:transform;
-}
-
-body:active #counter {
-    transform:scale(0.96);
-    opacity:0.8;
+    -webkit-tap-highlight-color:transparent;
 }
 
 .overlay {
@@ -50,7 +47,7 @@ body:active #counter {
 <body>
 
 <div class="overlay"></div>
-<div id="counter">0</div>
+<div id="counter" role="button" tabindex="0" aria-label="counter">0</div>
 
 <script>
 let count = Number(localStorage.getItem('counter')) || 0;
@@ -58,53 +55,78 @@ const el = document.getElementById('counter');
 el.textContent = count;
 
 let audioCtx;
-let active = false;
+let masterGain;
 let lastClick = 0;
-const delay = 120;
+const delay = 100;
+let saveTimeout;
 
-const initAudio = () => {
-    if (!audioCtx) audioCtx = new (AudioContext || webkitAudioContext)();
+function initAudio() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = 0.4;
+        masterGain.connect(audioCtx.destination);
+    }
     if (audioCtx.state === 'suspended') audioCtx.resume();
-};
+}
 
-const clickSound = () => {
+function clickSound() {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
     osc.type = 'square';
-    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.02);
+    osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.03);
 
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.02);
+    gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
 
     osc.connect(gain);
-    gain.connect(audioCtx.destination);
+    gain.connect(masterGain);
 
     osc.start();
-    osc.stop(audioCtx.currentTime + 0.02);
-};
+    osc.stop(audioCtx.currentTime + 0.03);
+}
+
+function updateUI() {
+    el.textContent = count;
+}
+
+function save() {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        localStorage.setItem('counter', count);
+    }, 150);
+}
+
+function animate() {
+    el.style.transform = 'scale(0.95)';
+    setTimeout(() => {
+        el.style.transform = 'scale(1)';
+    }, 70);
+}
+
+function handleClick() {
+    count++;
+    updateUI();
+    save();
+    animate();
+    clickSound();
+}
 
 window.addEventListener('pointerdown', () => {
-    if (active) return;
-
-    const now = Date.now();
+    const now = performance.now();
     if (now - lastClick < delay) return;
-
-    active = true;
     lastClick = now;
 
     initAudio();
-
-    count++;
-    el.textContent = count;
-    localStorage.setItem('counter', count);
-
-    clickSound();
+    handleClick();
 });
 
-window.addEventListener('pointerup', () => {
-    active = false;
+el.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+        handleClick();
+    }
 });
 </script>
 
