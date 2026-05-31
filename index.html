@@ -58,6 +58,9 @@ const el = document.getElementById('counter');
 el.textContent = count;
 
 let audioCtx;
+let active = false;
+let lastClick = 0;
+const delay = 120;
 
 const initAudio = () => {
     if (!audioCtx) audioCtx = new (AudioContext || webkitAudioContext)();
@@ -83,11 +86,25 @@ const clickSound = () => {
 };
 
 window.addEventListener('pointerdown', () => {
+    if (active) return;
+
+    const now = Date.now();
+    if (now - lastClick < delay) return;
+
+    active = true;
+    lastClick = now;
+
     initAudio();
+
     count++;
     el.textContent = count;
     localStorage.setItem('counter', count);
+
     clickSound();
+});
+
+window.addEventListener('pointerup', () => {
+    active = false;
 });
 </script>
 
