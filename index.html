@@ -53,38 +53,41 @@ body:active #counter {
 <div id="counter">0</div>
 
 <script>
-let count=0;
-const el=document.getElementById('counter');
+let count = Number(localStorage.getItem('counter')) || 0;
+const el = document.getElementById('counter');
+el.textContent = count;
+
 let audioCtx;
 
-const initAudio=()=>{
-if(!audioCtx)audioCtx=new(AudioContext||webkitAudioContext)();
-if(audioCtx.state==='suspended')audioCtx.resume();
+const initAudio = () => {
+    if (!audioCtx) audioCtx = new (AudioContext || webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
 };
 
-const clickSound=()=>{
-const osc=audioCtx.createOscillator();
-const gain=audioCtx.createGain();
+const clickSound = () => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
 
-osc.type='square';
-osc.frequency.setValueAtTime(800,audioCtx.currentTime);
-osc.frequency.exponentialRampToValueAtTime(100,audioCtx.currentTime+0.02);
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.02);
 
-gain.gain.setValueAtTime(0.1,audioCtx.currentTime);
-gain.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.02);
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.02);
 
-osc.connect(gain);
-gain.connect(audioCtx.destination);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
 
-osc.start();
-osc.stop(audioCtx.currentTime+0.02);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.02);
 };
 
-window.addEventListener('pointerdown',()=>{
-initAudio();
-count++;
-el.textContent=count;
-clickSound();
+window.addEventListener('pointerdown', () => {
+    initAudio();
+    count++;
+    el.textContent = count;
+    localStorage.setItem('counter', count);
+    clickSound();
 });
 </script>
 
