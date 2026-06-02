@@ -1,64 +1,289 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Counter</title>
+<title>Counter & Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
     --bg:#111;
     --fg:#eee;
+    --accent:#5865F2;
+    --panel-bg:#0e0f13;
+    --card-bg:#1a1b1f;
+    --border:#2a2b30;
+    --online:#23a55a;
+    --idle:#f0b132;
+    --dnd:#f23f43;
+    --offline:#80848e;
+    --muted:#8b8d96;
 }
-
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin:0; height:100%; overflow:hidden; overscroll-behavior:none; }
 body {
-    margin:0;
-    height:100vh;
-    background:var(--bg);
-    color:var(--fg);
-    font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    overflow:hidden;
-    touch-action:manipulation;
-    user-select:none;
-    overscroll-behavior:none;
-}
-
-#counter {
-    font-size:clamp(80px, 35vw, 320px);
-    font-weight:900;
-    font-variant-numeric:tabular-nums;
-    letter-spacing:-0.05em;
-    transition:transform 0.06s cubic-bezier(0,0,0.2,1);
-    will-change:transform;
+    background:var(--bg); color:var(--fg);
+    font-family:'Space Mono',monospace;
+    touch-action:pan-y; user-select:none;
     -webkit-tap-highlight-color:transparent;
 }
 
+/* STAGE */
+#stage {
+    display:flex; width:200%; height:100dvh;
+    will-change:transform;
+    transition:transform 0.45s cubic-bezier(0.32,0.72,0,1);
+}
+#stage.sliding { transition:none; }
+
+/* COUNTER PAGE */
+#page-counter {
+    width:50%; height:100%;
+    display:flex; justify-content:center; align-items:center;
+    position:relative; flex-shrink:0;
+}
 .overlay {
-    position:fixed;
-    inset:0;
-    pointer-events:none;
+    position:absolute; inset:0; pointer-events:none;
     background:url('https://www.transparenttextures.com/patterns/asfalt-dark.png');
     opacity:0.1;
 }
+#swipe-hint {
+    position:absolute; right:24px; top:50%; transform:translateY(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    opacity:0.25; animation:hintPulse 2.5s ease-in-out infinite; pointer-events:none;
+}
+#swipe-hint svg { width:22px; height:22px; fill:var(--fg); }
+#swipe-hint span { font-size:9px; letter-spacing:0.15em; writing-mode:vertical-rl; opacity:0.7; }
+@keyframes hintPulse {
+    0%,100% { opacity:0.18; transform:translateY(-50%) translateX(0); }
+    50%      { opacity:0.45; transform:translateY(-50%) translateX(-5px); }
+}
+#counter {
+    font-size:clamp(80px,35vw,320px); font-weight:700;
+    font-variant-numeric:tabular-nums; letter-spacing:-0.05em;
+    transition:transform 0.06s cubic-bezier(0,0,0.2,1);
+    will-change:transform; line-height:1;
+    cursor:pointer;
+}
+
+/* PROFILE PAGE */
+#page-profile {
+    width:50%; height:100%; background:var(--panel-bg);
+    overflow-y:auto; overflow-x:hidden; flex-shrink:0;
+    position:relative; scrollbar-width:thin; scrollbar-color:var(--border) transparent;
+}
+#back-hint {
+    position:fixed; left:20px; top:50%; transform:translateY(-50%);
+    opacity:0.2; pointer-events:none;
+    animation:backPulse 2.5s ease-in-out infinite; z-index:10;
+    display:none;
+}
+#back-hint svg { width:20px; height:20px; fill:var(--fg); transform:rotate(180deg); }
+@keyframes backPulse {
+    0%,100% { opacity:0.15; transform:translateY(-50%) translateX(0); }
+    50%      { opacity:0.35; transform:translateY(-50%) translateX(4px); }
+}
+
+/* Banner */
+#profile-banner {
+    width:100%; height:120px; background:#202226;
+    position:relative; overflow:hidden; flex-shrink:0;
+}
+#banner-gradient {
+    position:absolute; inset:0;
+    background:linear-gradient(135deg,#020241 0%,#1a1d3a 40%,#0e1128 100%);
+}
+#banner-noise {
+    position:absolute; inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E");
+    opacity:0.35; mix-blend-mode:overlay;
+}
+
+/* Avatar & Decoration */
+#avatar-block {
+    padding:0 20px; position:relative; margin-top:-44px;
+    display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:14px;
+}
+#avatar-wrap { position:relative; width:88px; height:88px; }
+#avatar-wrap img.avatar {
+    width:88px; height:88px; border-radius:50%;
+    border:5px solid var(--panel-bg); display:block; object-fit:cover;
+}
+#avatar-wrap .avatar-deco {
+    position:absolute;
+    width:110px; height:110px;
+    top:-11px; left:-11px;
+    pointer-events:none;
+    z-index:2;
+}
+.status-dot {
+    position:absolute; bottom:2px; right:2px; width:20px; height:20px;
+    background:var(--offline); border-radius:50%; border:4px solid var(--panel-bg);
+    z-index:3;
+}
+
+/* Nameplate */
+#nameplate-wrap {
+    margin:0 20px 16px; border-radius:10px; overflow:hidden;
+    position:relative; height:44px; background:var(--card-bg);
+    border:1px solid var(--border);
+}
+#nameplate-vid {
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; opacity:0.85; border-radius:10px;
+}
+#nameplate-label {
+    position:relative; z-index:1; height:100%;
+    display:flex; align-items:center; padding:0 14px; gap:10px;
+    font-size:12px; color:#fff; font-weight:700; letter-spacing:0.04em;
+    text-shadow:0 1px 8px rgba(0,0,0,0.9);
+}
+#nameplate-label .np-icon { font-size:18px; }
+
+/* Cards */
+.profile-card {
+    margin:0 20px 14px; background:var(--card-bg);
+    border-radius:12px; padding:14px 16px; border:1px solid var(--border);
+}
+.profile-card h3 {
+    margin:0 0 10px; font-size:10px; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--muted); font-weight:700;
+}
+.username-line { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+.global-name { font-size:22px; font-weight:700; color:var(--fg); line-height:1; }
+.username-tag { font-size:13px; color:var(--muted); }
+.clan-tag {
+    display:inline-flex; align-items:center; gap:5px;
+    background:rgba(88,101,242,0.15); border:1px solid rgba(88,101,242,0.3);
+    border-radius:6px; padding:4px 8px; font-size:11px; color:#939cf4;
+    font-weight:700; margin-top:10px;
+}
+.clan-tag img { width:16px; height:16px; border-radius:3px; }
+.badges-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:2px; }
+.badge-pill {
+    display:flex; align-items:center; gap:6px;
+    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+    border-radius:20px; padding:5px 10px; font-size:11px; color:var(--fg);
+}
+.badge-pill img { width:16px; height:16px; }
+.presence-row { display:flex; align-items:center; gap:8px; font-size:12px; }
+.presence-dot { width:10px; height:10px; border-radius:50%; background:var(--offline); flex-shrink:0; }
+.presence-platform {
+    font-size:10px; color:var(--muted); background:rgba(255,255,255,0.05);
+    border-radius:4px; padding:2px 6px;
+}
+.kv-row {
+    display:flex; justify-content:space-between; font-size:12px;
+    padding:6px 0; border-bottom:1px solid var(--border);
+}
+.kv-row:last-child { border-bottom:none; }
+.kv-key { color:var(--muted); }
+.kv-val { color:var(--fg); font-weight:700; }
+.created-date { font-size:11px; color:var(--muted); margin-top:6px; }
+
+/* Loading */
+#profile-loading {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    height:200px; gap:12px; color:var(--muted); font-size:12px;
+}
+.spinner {
+    width:28px; height:28px; border:3px solid var(--border);
+    border-top-color:#5865F2; border-radius:50%;
+    animation:spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+#profile-content { opacity:0; transition:opacity 0.4s ease; }
+#profile-content.loaded { opacity:1; }
 </style>
 </head>
 <body>
 
-<div class="overlay"></div>
-<div id="counter" role="button" tabindex="0" aria-label="counter">0</div>
+<div id="stage">
+
+  <!-- PAGE 1: COUNTER -->
+  <div id="page-counter">
+    <div class="overlay"></div>
+    <div id="swipe-hint">
+      <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+      <span>SWIPE</span>
+    </div>
+    <div id="counter" role="button" tabindex="0" aria-label="counter">0</div>
+  </div>
+
+  <!-- PAGE 2: PROFILE -->
+  <div id="page-profile">
+    <div id="back-hint">
+      <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+    </div>
+
+    <div id="profile-banner">
+      <div id="banner-gradient"></div>
+      <div id="banner-noise"></div>
+    </div>
+
+    <div id="profile-loading">
+      <div class="spinner"></div>
+      <span>Loading profile...</span>
+    </div>
+
+    <div id="profile-content">
+      <div id="avatar-block">
+        <div id="avatar-wrap">
+          <img class="avatar" id="user-avatar" src="" alt="avatar">
+          <img class="avatar-deco" id="user-deco" src="" alt="" style="display:none">
+          <div class="status-dot" id="status-dot"></div>
+        </div>
+      </div>
+
+      <div id="nameplate-wrap">
+        <video id="nameplate-vid" autoplay loop muted playsinline></video>
+        <div id="nameplate-label">
+          <span class="np-icon">🌸</span>
+          <span id="nameplate-text"></span>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <h3>Profile</h3>
+        <div class="username-line">
+          <span class="global-name" id="global-name"></span>
+        </div>
+        <div class="username-tag" id="username-tag"></div>
+        <div class="created-date" id="created-date"></div>
+        <div id="clan-wrap"></div>
+      </div>
+
+      <div class="profile-card" id="badges-card">
+        <h3>Badges</h3>
+        <div class="badges-row" id="badges-row"></div>
+      </div>
+
+      <div class="profile-card">
+        <h3>Status</h3>
+        <div class="presence-row" id="presence-row"></div>
+      </div>
+
+      <div class="profile-card" id="kv-card" style="margin-bottom:32px">
+        <h3>Data</h3>
+        <div id="kv-rows"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
 
 <script>
+/* ══════════════════════════════════
+   COUNTER
+══════════════════════════════════ */
 let count = Number(localStorage.getItem('counter')) || 0;
-const el = document.getElementById('counter');
-el.textContent = count;
+const counterEl = document.getElementById('counter');
+counterEl.textContent = count;
 
-let audioCtx;
-let masterGain;
-let lastClick = 0;
-const delay = 100;
-let saveTimeout;
+let audioCtx, masterGain, lastClick = 0, saveTimeout;
+const DELAY = 100;
 
 function initAudio() {
     if (!audioCtx) {
@@ -73,62 +298,260 @@ function initAudio() {
 function clickSound() {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-
     osc.type = 'square';
     osc.frequency.setValueAtTime(900, audioCtx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.03);
-
     gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
-
-    osc.connect(gain);
-    gain.connect(masterGain);
-
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.03);
-}
-
-function updateUI() {
-    el.textContent = count;
+    osc.connect(gain); gain.connect(masterGain);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.03);
 }
 
 function save() {
     clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => {
-        localStorage.setItem('counter', count);
-    }, 150);
+    saveTimeout = setTimeout(() => localStorage.setItem('counter', count), 150);
 }
 
-function animate() {
-    el.style.transform = 'scale(0.95)';
-    setTimeout(() => {
-        el.style.transform = 'scale(1)';
-    }, 70);
+function animateCounter() {
+    counterEl.style.transform = 'scale(0.95)';
+    setTimeout(() => counterEl.style.transform = 'scale(1)', 70);
 }
 
-function handleClick() {
-    count++;
-    updateUI();
-    save();
-    animate();
-    clickSound();
+function handleCounterClick() {
+    count++; counterEl.textContent = count; save(); animateCounter(); clickSound();
 }
 
-window.addEventListener('pointerdown', () => {
-    const now = performance.now();
-    if (now - lastClick < delay) return;
-    lastClick = now;
+/* ══════════════════════════════════
+   SWIPE NAV
+══════════════════════════════════ */
+const stage = document.getElementById('stage');
+let currentPage = 0;
+let touchStartX = 0, touchStartY = 0, dragging = false, dragDelta = 0;
+let profileLoaded = false;
 
-    initAudio();
-    handleClick();
-});
+function pageOffset(page) { return page === 0 ? '0%' : '-50%'; }
 
-el.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-        handleClick();
+function goToPage(page, instant) {
+    currentPage = page;
+    document.getElementById('back-hint').style.display = page === 1 ? 'block' : 'none';
+    if (instant) {
+        stage.classList.add('sliding');
+        stage.style.transform = `translateX(${pageOffset(page)})`;
+        requestAnimationFrame(() => requestAnimationFrame(() => stage.classList.remove('sliding')));
+    } else {
+        stage.classList.remove('sliding');
+        stage.style.transform = `translateX(${pageOffset(page)})`;
     }
-});
-</script>
+    if (page === 1 && !profileLoaded) loadProfile();
+}
 
+function clamp(d) {
+    const max = window.innerWidth * 0.65;
+    return Math.max(-max, Math.min(max, d));
+}
+
+document.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    dragging = false; dragDelta = 0;
+}, { passive: true });
+
+document.addEventListener('touchmove', e => {
+    const dx = e.touches[0].clientX - touchStartX;
+    const dy = e.touches[0].clientY - touchStartY;
+    if (!dragging) {
+        if (Math.abs(dy) > Math.abs(dx) + 5) return;
+        if (Math.abs(dx) > 8) dragging = true;
+    }
+    if (!dragging) return;
+    dragDelta = clamp(dx);
+    const base = currentPage === 0 ? 0 : -window.innerWidth;
+    stage.classList.add('sliding');
+    stage.style.transform = `translateX(${base + dragDelta}px)`;
+}, { passive: true });
+
+document.addEventListener('touchend', e => {
+    if (!dragging) {
+        const rect = document.getElementById('page-counter').getBoundingClientRect();
+        const tx = e.changedTouches[0].clientX, ty = e.changedTouches[0].clientY;
+        if (tx >= rect.left && tx <= rect.right && ty >= rect.top && ty <= rect.bottom) {
+            const now = performance.now();
+            if (now - lastClick < DELAY) return;
+            lastClick = now; initAudio(); handleCounterClick();
+        }
+        return;
+    }
+    dragging = false; stage.classList.remove('sliding');
+    const th = window.innerWidth * 0.2;
+    if (currentPage === 0 && dragDelta < -th) goToPage(1);
+    else if (currentPage === 1 && dragDelta > th) goToPage(0);
+    else goToPage(currentPage);
+}, { passive: true });
+
+let mouseDown = false;
+document.addEventListener('mousedown', e => {
+    mouseDown = true; touchStartX = e.clientX; dragging = false; dragDelta = 0;
+});
+document.addEventListener('mousemove', e => {
+    if (!mouseDown) return;
+    const dx = e.clientX - touchStartX;
+    if (!dragging && Math.abs(dx) > 8) dragging = true;
+    if (!dragging) return;
+    dragDelta = clamp(dx);
+    const base = currentPage === 0 ? 0 : -window.innerWidth;
+    stage.classList.add('sliding');
+    stage.style.transform = `translateX(${base + dragDelta}px)`;
+});
+document.addEventListener('mouseup', e => {
+    if (!mouseDown) return; mouseDown = false;
+    if (!dragging) {
+        const rect = document.getElementById('page-counter').getBoundingClientRect();
+        if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+            const now = performance.now();
+            if (now - lastClick < DELAY) return;
+            lastClick = now; initAudio(); handleCounterClick();
+        }
+        return;
+    }
+    dragging = false; stage.classList.remove('sliding');
+    const th = window.innerWidth * 0.2;
+    if (currentPage === 0 && dragDelta < -th) goToPage(1);
+    else if (currentPage === 1 && dragDelta > th) goToPage(0);
+    else goToPage(currentPage);
+});
+
+counterEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') handleCounterClick();
+});
+
+/* ══════════════════════════════════
+   PROFILE — DIRECT API FETCH
+══════════════════════════════════ */
+async function loadProfile() {
+    profileLoaded = true;
+    try {
+        // الاتصال المباشر بالـ API دون بروكسي كلاود
+        const res = await fetch('https://lumina-api-ky2v.onrender.com/api/v1/users/1159928250148077728');
+        const json = await res.json();
+        
+        if (json.success && json.data) {
+            renderProfile(json.data);
+        } else {
+            throw new Error('Data success field is false or structure mismatch');
+        }
+    } catch (err) {
+        console.error('Profile load error:', err);
+        document.getElementById('profile-loading').innerHTML =
+            `<span style="color:#f23f43;font-size:13px">⚠ Failed to load profile</span>`;
+    }
+}
+
+function renderProfile(data) {
+    document.getElementById('profile-loading').style.display = 'none';
+
+    // Avatar
+    document.getElementById('user-avatar').src = data.avatar;
+
+    // Decoration (الزينة الخاصة بالصورة الرمزية)
+    const deco = data.decorations?.avatar_decoration;
+    const dEl = document.getElementById('user-deco');
+    if (deco && deco.url) {
+        dEl.src = deco.url; 
+        dEl.style.display = 'block';
+    } else {
+        dEl.style.display = 'none';
+    }
+
+    // Status dot color
+    const statusColors = { online:'#23a55a', idle:'#f0b132', dnd:'#f23f43', offline:'#80848e' };
+    const userStatus = data.presence?.status || 'offline';
+    document.getElementById('status-dot').style.background = statusColors[userStatus] || '#80848e';
+
+    // Nameplate (لوحة الاسم المتحركة)
+    const np = data.decorations?.nameplate;
+    const npWrap = document.getElementById('nameplate-wrap');
+    if (np && np.animated_url) {
+        npWrap.style.display = 'block';
+        document.getElementById('nameplate-vid').src = np.animated_url;
+        document.getElementById('nameplate-text').textContent = np.label || 'Swaying Cherry Blossom';
+    } else {
+        npWrap.style.display = 'none';
+    }
+
+    // Names
+    document.getElementById('global-name').textContent = data.global_name || data.username;
+    document.getElementById('username-tag').textContent = '@' + data.username;
+
+    // Created Date
+    if (data.created_at) {
+        const created = new Date(data.created_at);
+        document.getElementById('created-date').textContent =
+            'Joined ' + created.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+    }
+
+    // Server Tag / Clan Badge
+    const tag = data.server_tag;
+    const clanWrap = document.getElementById('clan-wrap');
+    if (tag && tag.tag) {
+        clanWrap.innerHTML = `
+            <div class="clan-tag">
+                <img src="${tag.badge_url}" alt="clan-badge">
+                [${tag.tag}]
+            </div>`;
+    } else {
+        clanWrap.innerHTML = '';
+    }
+
+    // Badges (الأوسمة)
+    const badgesRow = document.getElementById('badges-row');
+    badgesRow.innerHTML = '';
+    if (data.badges && data.badges.length > 0) {
+        document.getElementById('badges-card').style.display = 'block';
+        data.badges.forEach(b => {
+            badgesRow.innerHTML += `
+                <div class="badge-pill">
+                    <img src="${b.icon_url}" alt="${b.description}">
+                    ${b.description}
+                </div>`;
+        });
+    } else {
+        document.getElementById('badges-card').style.display = 'none';
+    }
+
+    // Presence (الحالة والمنصات النشطة)
+    const p = data.presence || { status: 'offline', desktop: false, mobile: false, web: false };
+    const platforms = [];
+    if (p.desktop) platforms.push('Desktop');
+    if (p.mobile)  platforms.push('Mobile');
+    if (p.web)     platforms.push('Web');
+    
+    document.getElementById('presence-row').innerHTML = `
+        <div class="presence-dot" style="background:${statusColors[p.status] || '#80848e'}"></div>
+        <span style="color:#eee;font-size:13px">${p.status.charAt(0).toUpperCase() + p.status.slice(1)}</span>
+        ${platforms.map(pl => `<span class="presence-platform">${pl}</span>`).join('')}`;
+
+    // KV (البيانات المخصصة)
+    const kv = data.kv;
+    const kvRows = document.getElementById('kv-rows');
+    kvRows.innerHTML = '';
+    if (kv && Object.keys(kv).length > 0) {
+        document.getElementById('kv-card').style.display = 'block';
+        Object.entries(kv).forEach(([k, v]) => {
+            kvRows.innerHTML += `
+                <div class="kv-row">
+                    <span class="kv-key">${k}</span>
+                    <span class="kv-val">${v}</span>
+                </div>`;
+        });
+    } else {
+        document.getElementById('kv-card').style.display = 'none';
+    }
+
+    document.getElementById('profile-content').classList.add('loaded');
+}
+
+stage.style.transform = 'translateX(0%)';
+</script>
 </body>
 </html>
