@@ -14,7 +14,7 @@
     font-size: 14px;
   }
   .wrap {
-    max-width: 480px;
+    max-width: 560px;
     margin: 0 auto;
   }
   h1 {
@@ -22,6 +22,10 @@
     margin-bottom: 16px;
     border-bottom: 1px solid #000;
     padding-bottom: 6px;
+  }
+  h2 {
+    font-size: 13px;
+    margin: 20px 0 6px;
   }
   table {
     width: 100%;
@@ -33,7 +37,7 @@
     vertical-align: top;
   }
   td.k {
-    width: 130px;
+    width: 150px;
     background: #f0f0f0;
     font-weight: bold;
   }
@@ -42,9 +46,20 @@
     height: 48px;
     vertical-align: middle;
   }
+  img.banner {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
   img.badge {
     width: 16px;
     height: 16px;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+  img.icon {
+    width: 32px;
+    height: 32px;
     vertical-align: middle;
     margin-right: 4px;
   }
@@ -77,20 +92,54 @@ async function render() {
     const status = p.status || "offline";
     const platforms = [p.desktop && "Desktop", p.mobile && "Mobile", p.web && "Web"].filter(Boolean).join(", ") || "None";
 
+    const dec = u.decorations || {};
+    const decoration = dec.avatar_decoration
+      ? "<img class='icon' src='" + dec.avatar_decoration.url + "'> SKU " + dec.avatar_decoration.sku_id
+      : "None";
+    const nameplate = dec.nameplate
+      ? dec.nameplate.label + " (" + dec.nameplate.palette + ")"
+      : "None";
+
+    const tag = u.server_tag
+      ? "<img class='icon' src='" + u.server_tag.badge_url + "'> " + u.server_tag.tag
+      : "None";
+
     const badges = (u.badges && u.badges.length)
       ? u.badges.map(b => "<img class='badge' src='" + b.icon_url + "' title='" + b.description + "'>" + b.description).join("<br>")
       : "None";
 
+    const activities = (p.activities && p.activities.length)
+      ? p.activities.map(a => a.name + " (type " + a.type + ")").join("<br>")
+      : "None";
+
+    const spotify = p.spotify
+      ? p.spotify.song + " — " + p.spotify.artist
+      : "None";
+
+    const kv = u.kv && Object.keys(u.kv).length
+      ? Object.entries(u.kv).map(([k, v]) => k + ": " + v).join("<br>")
+      : "Empty";
+
     output.innerHTML =
+      "<tr><td class='k'>Banner</td><td>" + (u.banner ? "<img class='banner' src='" + u.banner + "'>" : "None") + "</td></tr>" +
       "<tr><td class='k'>Avatar</td><td><img class='avatar' src='" + u.avatar + "'></td></tr>" +
       "<tr><td class='k'>Global Name</td><td>" + (u.global_name || u.username) + "</td></tr>" +
       "<tr><td class='k'>Username</td><td>@" + u.username + "</td></tr>" +
       "<tr><td class='k'>ID</td><td>" + u.id + "</td></tr>" +
+      "<tr><td class='k'>Bio</td><td>" + (u.bio || "None") + "</td></tr>" +
+      "<tr><td class='k'>Pronouns</td><td>" + (u.pronouns || "None") + "</td></tr>" +
+      "<tr><td class='k'>Accent Color</td><td>" + (u.accent_color != null ? "#" + u.accent_color.toString(16).padStart(6, "0") : "None") + "</td></tr>" +
+      "<tr><td class='k'>Type</td><td>" + (u.bot ? "Bot" : "User") + "</td></tr>" +
+      "<tr><td class='k'>Created At</td><td>" + fmt(u.created_at) + "</td></tr>" +
+      "<tr><td class='k'>Server Tag</td><td>" + tag + "</td></tr>" +
+      "<tr><td class='k'>Avatar Decoration</td><td>" + decoration + "</td></tr>" +
+      "<tr><td class='k'>Nameplate</td><td>" + nameplate + "</td></tr>" +
+      "<tr><td class='k'>Badges</td><td>" + badges + "</td></tr>" +
       "<tr><td class='k'>Status</td><td>" + status + "</td></tr>" +
       "<tr><td class='k'>Active On</td><td>" + platforms + "</td></tr>" +
-      "<tr><td class='k'>Badges</td><td>" + badges + "</td></tr>" +
-      "<tr><td class='k'>Type</td><td>" + (u.bot ? "Bot" : "User") + "</td></tr>" +
-      "<tr><td class='k'>Created At</td><td>" + fmt(u.created_at) + "</td></tr>";
+      "<tr><td class='k'>Activities</td><td>" + activities + "</td></tr>" +
+      "<tr><td class='k'>Spotify</td><td>" + spotify + "</td></tr>" +
+      "<tr><td class='k'>KV Store</td><td>" + kv + "</td></tr>";
   } catch (e) {
     output.innerHTML = "<tr><td colspan='2'>Failed to load data</td></tr>";
   }
