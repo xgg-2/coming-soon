@@ -91,6 +91,9 @@
     display: block;
     background: #eee;
   }
+  img.media.playable {
+    cursor: pointer;
+  }
   .swatch {
     display: inline-block;
     width: 18px;
@@ -165,6 +168,39 @@ function hexColor(n) {
   return n != null ? "#" + n.toString(16).padStart(6, "0").toUpperCase() : null;
 }
 
+// Called when a Layer thumbnail is clicked: loads the video via fetch+blob
+// (this CDN endpoint needs a full blob load, not streaming) and plays it in place.
+async function playLayer(imgEl, encodedUrl) {
+  const url = decodeURIComponent(encodedUrl);
+  const wrap = imgEl.parentElement;
+  const status = document.createElement("div");
+  status.className = "sub";
+  status.textContent = "جاري التحميل...";
+  imgEl.insertAdjacentElement("afterend", status);
+  imgEl.style.opacity = "0.5";
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const blob = await res.blob();
+    const objUrl = URL.createObjectURL(blob);
+    const vid = document.createElement("video");
+    vid.className = "media";
+    vid.loop = true;
+    vid.muted = true;
+    vid.playsInline = true;
+    vid.controls = true;
+    vid.src = objUrl;
+    imgEl.replaceWith(vid);
+    status.remove();
+    vid.play().catch(() => {
+      // autoplay blocked, controls are visible so user can tap play
+    });
+  } catch (e) {
+    imgEl.style.opacity = "1";
+    status.textContent = "تعذر تحميل الفيديو (" + (e && e.message ? e.message : "خطأ") + ")";
+  }
+}
+
 function row(label, valueHtml) {
   return "<tr><td class='k'>" + esc(label) + "</td><td>" + valueHtml + "</td></tr>";
 }
@@ -190,7 +226,7 @@ async function render() {
 
     let html = "";
 
-    
+    // ---- Identity ----
     html += section("Identity");
     html += "<table>";
     html += row("Banner", u.banner ? "<img class='banner' src='" + u.banner + "'>" : "None");
@@ -208,7 +244,7 @@ async function render() {
     html += row("Created At", fmt(u.created_at));
     html += "</table>";
 
-  
+    // ---- Display Name Styles ----
     html += section("Display Name Styles");
     html += "<table>";
     if (dns) {
@@ -220,7 +256,7 @@ async function render() {
     }
     html += "</table>";
 
-    
+    // ---- Server Tag ----
     html += section("Server Tag");
     html += "<table>";
     if (u.server_tag) {
@@ -231,7 +267,7 @@ async function render() {
     }
     html += "</table>";
 
-    
+    // ---- Badges ----
     html += section("Badges");
     html += "<table>";
     if (u.badges && u.badges.length) {
@@ -243,7 +279,7 @@ async function render() {
     }
     html += "</table>";
 
-    
+    // ---- Avatar Decoration ----
     html += section("Avatar Decoration");
     html += "<table>";
     if (ad) {
@@ -256,12 +292,15 @@ async function render() {
     }
     html += "</table>";
 
-    
+    // ---- Nameplate ----
     html += section("Nameplate");
     html += "<table>";
     if (nm) {
       html += row("Preview (static)", "<img class='media' src='" + nm.static_url + "'>");
-      html += row("Preview (animated)", "<video class='media' src='" + nm.animated_url + "' autoplay loop muted playsinline></video>");
+      html += row("Preview (animated)",
+        "<video class='media' autoplay loop muted playsinline controls>" +
+        "<source src='" + nm.animated_url + "' type='video/webm'>" +
+        "</video>");
       html += row("Label", esc(nm.label));
       html += row("Palette", esc(nm.palette));
       html += row("SKU ID", "<span class='mono'>" + esc(nm.sku_id) + "</span>");
@@ -272,13 +311,10 @@ async function render() {
     }
     html += "</table>";
 
-    
+    // ---- Profile Effect ----
     html += section("Profile Effect");
     html += "<table>";
     if (pe) {
-      html += row("Thumbnail", "<img class='media' src='" + pe.thumbnail_url + "'>");
-      html += row("Static Preview", "<img class='media' src='" + pe.static_url + "'>");
-      html += row("Reduced Motion Preview", "<img class='media' src='" + pe.reduced_motion_url + "'>");
       html += row("Title", esc(pe.title));
       html += row("Description", esc(pe.description));
       html += row("Accessibility Label", esc(pe.accessibility_label));
@@ -290,7 +326,8 @@ async function render() {
           "<div class='sub'>Layer " + (i + 1) + " — loop: " + (a.loop ? "yes" : "no") +
           ", start: " + a.start_ms + "ms, duration: " + a.duration_ms + "ms" +
           (a.width ? ", " + a.width + "x" + a.height : "") + "</div>" +
-          "<video class='media' src='" + a.url + "' autoplay loop muted playsinline></video>" +
+          "<img class='media playable' src='" + pe.thumbnail_url + "' " +
+          "onclick=\"playLayer(this, '" + encodeURIComponent(a.url) + "')\">" +
           "</div>"
         ).join("");
         html += row("Animation Layers", animsHtml);
@@ -300,7 +337,7 @@ async function render() {
     }
     html += "</table>";
 
-    
+    // ---- Theme Colors ----
     html += section("Theme Colors / Popout");
     html += "<table>";
     if (dec.theme_colors && dec.theme_colors.length) {
@@ -311,7 +348,7 @@ async function render() {
     html += row("Popout Animation Particle Type", esc(dec.popout_animation_particle_type || "None"));
     html += "</table>";
 
-    
+    // ---- Connected Accounts ----
     html += section("Connected Accounts");
     html += "<table>";
     if (u.connected_accounts && u.connected_accounts.length) {
@@ -323,6 +360,7 @@ async function render() {
     }
     html += "</table>";
 
+    // ---- Premium ----
     html += section("Premium");
     html += "<table>";
     if (premium) {
@@ -334,6 +372,7 @@ async function render() {
     }
     html += "</table>";
 
+    // ---- Presence ----
     html += section("Presence");
     html += "<table>";
     html += row("Status", esc(p.status || "offline"));
@@ -348,6 +387,7 @@ async function render() {
     html += row("Spotify", p.spotify ? esc(p.spotify.song) + " — " + esc(p.spotify.artist) : "None");
     html += "</table>";
 
+    // ---- KV Store ----
     html += section("KV Store");
     html += "<table>";
     if (u.kv && Object.keys(u.kv).length) {
