@@ -6,6 +6,13 @@
 <title>User Data</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%235865F2'/><circle cx='50' cy='38' r='18' fill='white'/><path d='M20 85 C20 62 34 55 50 55 C66 55 80 62 80 85 Z' fill='white'/></svg>" />
 <style>
+  * {
+    box-sizing: border-box;
+  }
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
   body {
     margin: 0;
     padding: 40px 20px;
@@ -15,8 +22,9 @@
     font-size: 14px;
   }
   .wrap {
-    max-width: 560px;
+    max-width: 640px;
     margin: 0 auto;
+    width: 100%;
   }
   h1 {
     font-size: 16px;
@@ -26,19 +34,24 @@
   }
   h2 {
     font-size: 13px;
-    margin: 20px 0 6px;
+    margin: 24px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
   table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
   }
   td {
     border: 1px solid #999;
     padding: 6px 8px;
     vertical-align: top;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
   td.k {
-    width: 150px;
+    width: 170px;
     background: #f0f0f0;
     font-weight: bold;
   }
@@ -64,22 +77,100 @@
     vertical-align: middle;
     margin-right: 4px;
   }
+  video.media {
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    display: block;
+    background: #eee;
+  }
+  img.media {
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    display: block;
+    background: #eee;
+  }
+  .swatch {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 1px solid #999;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+  .mono {
+    font-family: Consolas, monospace;
+    font-size: 12.5px;
+    word-break: break-all;
+  }
+  .sub {
+    color: #666;
+    font-size: 12px;
+    word-break: break-word;
+  }
+
+  @media (max-width: 480px) {
+    body {
+      padding: 20px 12px;
+      font-size: 13px;
+    }
+    table {
+      table-layout: auto;
+    }
+    tr {
+      display: flex;
+      flex-direction: column;
+    }
+    td.k {
+      width: 100%;
+      border-bottom: none;
+    }
+    td:not(.k) {
+      border-top: none;
+    }
+    img.avatar {
+      width: 40px;
+      height: 40px;
+    }
+    img.icon {
+      width: 26px;
+      height: 26px;
+    }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
 <h1>User Data</h1>
-<table id="output">
-<tr><td colspan="2">Loading...</td></tr>
-</table>
+<div id="output">Loading...</div>
 </div>
 
 <script>
 const USER_ID = "1159928250148077728";
 const API = "https://lumina-api-ky2v.onrender.com/api/v1/users/" + USER_ID;
 
+function esc(str) {
+  const div = document.createElement("div");
+  div.textContent = str == null ? "" : String(str);
+  return div.innerHTML;
+}
+
 function fmt(iso) {
-  return new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  if (!iso) return "None";
+  return new Date(iso).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
+function hexColor(n) {
+  return n != null ? "#" + n.toString(16).padStart(6, "0").toUpperCase() : null;
+}
+
+function row(label, valueHtml) {
+  return "<tr><td class='k'>" + esc(label) + "</td><td>" + valueHtml + "</td></tr>";
+}
+
+function section(title) {
+  return "<h2>" + esc(title) + "</h2>";
 }
 
 async function render() {
@@ -90,59 +181,187 @@ async function render() {
     if (!json.success) throw new Error();
     const u = json.data;
     const p = u.presence || {};
-    const status = p.status || "offline";
-    const platforms = [p.desktop && "Desktop", p.mobile && "Mobile", p.web && "Web"].filter(Boolean).join(", ") || "None";
-
     const dec = u.decorations || {};
-    const decoration = dec.avatar_decoration
-      ? "<img class='icon' src='" + dec.avatar_decoration.url + "'> SKU " + dec.avatar_decoration.sku_id
-      : "None";
-    const nameplate = dec.nameplate
-      ? dec.nameplate.label + " (" + dec.nameplate.palette + ")"
-      : "None";
+    const nm = dec.nameplate || null;
+    const pe = dec.profile_effect || null;
+    const ad = dec.avatar_decoration || null;
+    const dns = u.display_name_styles || null;
+    const premium = u.premium || null;
 
-    const tag = u.server_tag
-      ? "<img class='icon' src='" + u.server_tag.badge_url + "'> " + u.server_tag.tag
-      : "None";
+    let html = "";
 
-    const badges = (u.badges && u.badges.length)
-      ? u.badges.map(b => "<img class='badge' src='" + b.icon_url + "' title='" + b.description + "'>" + b.description).join("<br>")
-      : "None";
+    
+    html += section("Identity");
+    html += "<table>";
+    html += row("Banner", u.banner ? "<img class='banner' src='" + u.banner + "'>" : "None");
+    html += row("Avatar", "<img class='avatar' src='" + u.avatar + "'>");
+    html += row("Global Name", esc(u.global_name || "None"));
+    html += row("Username", "@" + esc(u.username));
+    html += row("Legacy Username", esc(u.legacy_username || "None"));
+    html += row("Discriminator", esc(u.discriminator || "None"));
+    html += row("ID", "<span class='mono'>" + esc(u.id) + "</span>");
+    html += row("Bio", esc(u.bio || "None"));
+    html += row("Pronouns", esc(u.pronouns || "None"));
+    html += row("Accent Color", hexColor(u.accent_color) ? "<span class='swatch' style='background:" + hexColor(u.accent_color) + "'></span>" + hexColor(u.accent_color) : "None");
+    html += row("Type", u.bot ? "Bot" : "User");
+    html += row("Is Friend", u.is_friend ? "Yes" : "No");
+    html += row("Created At", fmt(u.created_at));
+    html += "</table>";
 
-    const activities = (p.activities && p.activities.length)
-      ? p.activities.map(a => a.name + " (type " + a.type + ")").join("<br>")
-      : "None";
+  
+    html += section("Display Name Styles");
+    html += "<table>";
+    if (dns) {
+      html += row("Font ID", esc(dns.font_id));
+      html += row("Effect ID", esc(dns.effect_id));
+      html += row("Colors", (dns.colors || []).map(c => "<span class='swatch' style='background:" + hexColor(c) + "'></span>" + hexColor(c)).join(" ") || "None");
+    } else {
+      html += row("Display Name Styles", "None");
+    }
+    html += "</table>";
 
-    const spotify = p.spotify
-      ? p.spotify.song + " — " + p.spotify.artist
-      : "None";
+    
+    html += section("Server Tag");
+    html += "<table>";
+    if (u.server_tag) {
+      html += row("Tag", "<img class='icon' src='" + u.server_tag.badge_url + "'>" + esc(u.server_tag.tag));
+      html += row("Guild ID", "<span class='mono'>" + esc(u.server_tag.guild_id) + "</span>");
+    } else {
+      html += row("Server Tag", "None");
+    }
+    html += "</table>";
 
-    const kv = u.kv && Object.keys(u.kv).length
-      ? Object.entries(u.kv).map(([k, v]) => k + ": " + v).join("<br>")
-      : "Empty";
+    
+    html += section("Badges");
+    html += "<table>";
+    if (u.badges && u.badges.length) {
+      u.badges.forEach(b => {
+        html += row(b.id, "<img class='badge' src='" + b.icon_url + "'>" + esc(b.description) + (b.link ? " <span class='sub'>(" + esc(b.link) + ")</span>" : ""));
+      });
+    } else {
+      html += row("Badges", "None");
+    }
+    html += "</table>";
 
-    output.innerHTML =
-      "<tr><td class='k'>Banner</td><td>" + (u.banner ? "<img class='banner' src='" + u.banner + "'>" : "None") + "</td></tr>" +
-      "<tr><td class='k'>Avatar</td><td><img class='avatar' src='" + u.avatar + "'></td></tr>" +
-      "<tr><td class='k'>Global Name</td><td>" + (u.global_name || u.username) + "</td></tr>" +
-      "<tr><td class='k'>Username</td><td>@" + u.username + "</td></tr>" +
-      "<tr><td class='k'>ID</td><td>" + u.id + "</td></tr>" +
-      "<tr><td class='k'>Bio</td><td>" + (u.bio || "None") + "</td></tr>" +
-      "<tr><td class='k'>Pronouns</td><td>" + (u.pronouns || "None") + "</td></tr>" +
-      "<tr><td class='k'>Accent Color</td><td>" + (u.accent_color != null ? "#" + u.accent_color.toString(16).padStart(6, "0") : "None") + "</td></tr>" +
-      "<tr><td class='k'>Type</td><td>" + (u.bot ? "Bot" : "User") + "</td></tr>" +
-      "<tr><td class='k'>Created At</td><td>" + fmt(u.created_at) + "</td></tr>" +
-      "<tr><td class='k'>Server Tag</td><td>" + tag + "</td></tr>" +
-      "<tr><td class='k'>Avatar Decoration</td><td>" + decoration + "</td></tr>" +
-      "<tr><td class='k'>Nameplate</td><td>" + nameplate + "</td></tr>" +
-      "<tr><td class='k'>Badges</td><td>" + badges + "</td></tr>" +
-      "<tr><td class='k'>Status</td><td>" + status + "</td></tr>" +
-      "<tr><td class='k'>Active On</td><td>" + platforms + "</td></tr>" +
-      "<tr><td class='k'>Activities</td><td>" + activities + "</td></tr>" +
-      "<tr><td class='k'>Spotify</td><td>" + spotify + "</td></tr>" +
-      "<tr><td class='k'>KV Store</td><td>" + kv + "</td></tr>";
+    
+    html += section("Avatar Decoration");
+    html += "<table>";
+    if (ad) {
+      html += row("Preview", "<img class='icon' src='" + ad.url + "'>");
+      html += row("SKU ID", "<span class='mono'>" + esc(ad.sku_id) + "</span>");
+      html += row("Asset", "<span class='mono'>" + esc(ad.asset) + "</span>");
+      html += row("Expires At", fmt(ad.expires_at));
+    } else {
+      html += row("Avatar Decoration", "None");
+    }
+    html += "</table>";
+
+    
+    html += section("Nameplate");
+    html += "<table>";
+    if (nm) {
+      html += row("Preview (static)", "<img class='media' src='" + nm.static_url + "'>");
+      html += row("Preview (animated)", "<video class='media' src='" + nm.animated_url + "' autoplay loop muted playsinline></video>");
+      html += row("Label", esc(nm.label));
+      html += row("Palette", esc(nm.palette));
+      html += row("SKU ID", "<span class='mono'>" + esc(nm.sku_id) + "</span>");
+      html += row("Asset Path", "<span class='mono'>" + esc(nm.asset) + "</span>");
+      html += row("Expires At", fmt(nm.expires_at));
+    } else {
+      html += row("Nameplate", "None");
+    }
+    html += "</table>";
+
+    
+    html += section("Profile Effect");
+    html += "<table>";
+    if (pe) {
+      html += row("Thumbnail", "<img class='media' src='" + pe.thumbnail_url + "'>");
+      html += row("Static Preview", "<img class='media' src='" + pe.static_url + "'>");
+      html += row("Reduced Motion Preview", "<img class='media' src='" + pe.reduced_motion_url + "'>");
+      html += row("Title", esc(pe.title));
+      html += row("Description", esc(pe.description));
+      html += row("Accessibility Label", esc(pe.accessibility_label));
+      html += row("SKU ID", "<span class='mono'>" + esc(pe.sku_id) + "</span>");
+      html += row("Expires At", fmt(pe.expires_at));
+      if (pe.animations && pe.animations.length) {
+        const animsHtml = pe.animations.map((a, i) =>
+          "<div style='margin-bottom:10px;'>" +
+          "<div class='sub'>Layer " + (i + 1) + " — loop: " + (a.loop ? "yes" : "no") +
+          ", start: " + a.start_ms + "ms, duration: " + a.duration_ms + "ms" +
+          (a.width ? ", " + a.width + "x" + a.height : "") + "</div>" +
+          "<video class='media' src='" + a.url + "' autoplay loop muted playsinline></video>" +
+          "</div>"
+        ).join("");
+        html += row("Animation Layers", animsHtml);
+      }
+    } else {
+      html += row("Profile Effect", "None");
+    }
+    html += "</table>";
+
+    
+    html += section("Theme Colors / Popout");
+    html += "<table>";
+    if (dec.theme_colors && dec.theme_colors.length) {
+      html += row("Theme Colors", dec.theme_colors.map(c => "<span class='swatch' style='background:" + hexColor(c) + "'></span>" + hexColor(c)).join(" "));
+    } else {
+      html += row("Theme Colors", "None");
+    }
+    html += row("Popout Animation Particle Type", esc(dec.popout_animation_particle_type || "None"));
+    html += "</table>";
+
+    
+    html += section("Connected Accounts");
+    html += "<table>";
+    if (u.connected_accounts && u.connected_accounts.length) {
+      u.connected_accounts.forEach(c => {
+        html += row(c.type, esc(c.name) + " <span class='sub'>(id: " + esc(c.id) + ")</span> " + (c.verified ? "✅ Verified" : "❌ Not verified"));
+      });
+    } else {
+      html += row("Connected Accounts", "None");
+    }
+    html += "</table>";
+
+    html += section("Premium");
+    html += "<table>";
+    if (premium) {
+      html += row("Type", esc(premium.type) + " (" + esc(premium.type_name) + ")");
+      html += row("Since", fmt(premium.since));
+      html += row("Boosting Since", fmt(premium.boosting_since));
+    } else {
+      html += row("Premium", "None");
+    }
+    html += "</table>";
+
+    html += section("Presence");
+    html += "<table>";
+    html += row("Status", esc(p.status || "offline"));
+    html += row("Desktop", p.desktop ? "Online" : "Off");
+    html += row("Mobile", p.mobile ? "Online" : "Off");
+    html += row("Web", p.web ? "Online" : "Off");
+    html += row("Embedded", p.embedded ? "Online" : "Off");
+    html += row("VR", p.vr ? "Online" : "Off");
+    html += row("Activities", (p.activities && p.activities.length)
+      ? p.activities.map(a => esc(a.name) + " (type " + esc(a.type) + ")").join("<br>")
+      : "None");
+    html += row("Spotify", p.spotify ? esc(p.spotify.song) + " — " + esc(p.spotify.artist) : "None");
+    html += "</table>";
+
+    html += section("KV Store");
+    html += "<table>";
+    if (u.kv && Object.keys(u.kv).length) {
+      Object.entries(u.kv).forEach(([k, v]) => {
+        html += row(k, esc(v));
+      });
+    } else {
+      html += row("KV Store", "Empty");
+    }
+    html += "</table>";
+
+    output.innerHTML = html;
   } catch (e) {
-    output.innerHTML = "<tr><td colspan='2'>Failed to load data</td></tr>";
+    output.innerHTML = "<p>Failed to load data</p>";
   }
 }
 
